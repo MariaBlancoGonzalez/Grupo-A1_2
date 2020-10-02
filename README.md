@@ -1,5 +1,5 @@
 # Grupo-A1_2
-##Intelligent Systems laboratory group.
+## Intelligent Systems laboratory group.
 
 Group members: 
   * María Blanco González-Mohíno
