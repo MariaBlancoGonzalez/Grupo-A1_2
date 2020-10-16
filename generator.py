@@ -9,12 +9,36 @@ class WCell:
     Maze cell class
     """
 
+    RES = (16,16)
     MAX_N = 4
 
     def __init__(self, position):
         self.value = 0
-        self.position = np.array(position)
+        self.position = np.array(position) # row, col
         self.neighbors = [False for _ in range(WCell.MAX_N)]
+
+    def to_image(self):
+        "Create numpy array image representation with resolution WCell.RES"
+        img = np.ones(WCell.RES)
+
+        # set corners to walls
+        img[0,0] = 0
+        img[WCell.RES[0]-1,0] = 0
+        img[0,WCell.RES[1]-1] = 0
+        img[WCell.RES[0]-1,WCell.RES[1]-1] = 0
+
+        # set wall to black
+        for i in range(0, self.MAX_N):
+            if not self.neighbors[i]:
+                if WMaze.MOV[i][0] != 0:
+                    wall = range(0,WCell.RES[1])
+                    l = WCell.RES[0]-1 if WMaze.MOV[i][0] > 0 else 0
+                    img[l, wall] = 0
+                else:
+                    wall = range(0,WCell.RES[0])
+                    l = WCell.RES[1]-1 if WMaze.MOV[i][1] > 0 else 0
+                    img[wall, l] = 0
+        return img
 
     def to_dict(self):
         return {'value': self.value, 'neighbors': self.neighbors}
@@ -32,8 +56,6 @@ class WMaze:
     Maze class with Wilson's generator
     """
 
-    CLR_CELL = 255
-    CLR_CONN = 220
     ID_MOV = ["N", "E", "S", "O"]
     MOV = [[-1,0], [0,1], [1,0], [0,-1]]
 
@@ -97,21 +119,14 @@ class WMaze:
 
     def to_image(self):
         "Convert WMaze to a numpy array describing image"
-        get_pix = lambda r, c: (r * 2 + 1, c * 2 + 1)
+        get_pix = lambda r, c: (WCell.RES[0] * r, WCell.RES[1] * c)
         img = np.zeros(get_pix(self.rows, self.cols))
 
         for row in self.matrix:
             for cell in row:
                 # mark cell
-                pix = np.array(get_pix(*cell.position))
-                img[pix[0]][pix[1]] = self.CLR_CELL
-
-                # open walls
-                sides = cell.neighbors
-                for i in range(0, len(sides)):
-                    if sides[i]:
-                        npix = pix + np.array(self.MOV[i])
-                        img[npix[0]][npix[1]] = self.CLR_CONN
+                pos = get_pix(*cell.position)
+                img[pos[0]:pos[0]+WCell.RES[0], pos[1]:pos[1]+WCell.RES[1]] = cell.to_image()
         return img
 
     def to_json(self):
