@@ -144,12 +144,7 @@ class WMaze:
                 self.matrix[row][col].neighbors[side] = True
                 row, col = adj
                 self.matrix[row][col].neighbors[op_side] = True
-        #  exportAll = exportingCell + exportingMaze
-        #  print(exportAll)
 
-        # file = open(f"{ruta}/JSON_FILE.txt", "w")
-        # file.write(exportAll)
-        # file.close()
 
 def main():
     while True:
