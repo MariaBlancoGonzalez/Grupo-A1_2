@@ -19,25 +19,29 @@ class WCell:
 
     def to_image(self):
         "Create numpy array image representation with resolution WCell.RES"
-        img = np.ones(WCell.RES)
+        # Set image to white
+        img = np.ones(WCell.RES) * 255
 
-        # set corners to walls
+        # set corners to walls (black color)
         img[0,0] = 0
         img[WCell.RES[0]-1,0] = 0
         img[0,WCell.RES[1]-1] = 0
         img[WCell.RES[0]-1,WCell.RES[1]-1] = 0
 
-        # set wall to black
+        # iterate walls
         for i in range(0, self.MAX_N):
+            # if there is wall
             if not self.neighbors[i]:
+                # N-S axle
                 if WMaze.MOV[i][0] != 0:
-                    wall = range(0,WCell.RES[1])
-                    l = WCell.RES[0]-1 if WMaze.MOV[i][0] > 0 else 0
-                    img[l, wall] = 0
+                    pixels_wall = range(0,WCell.RES[1])
+                    pixel_row = WCell.RES[0]-1 if WMaze.MOV[i][0] > 0 else 0
+                    img[pixel_row, pixels_wall] = 0
+                # O-E axle
                 else:
-                    wall = range(0,WCell.RES[0])
-                    l = WCell.RES[1]-1 if WMaze.MOV[i][1] > 0 else 0
-                    img[wall, l] = 0
+                    pixel_wall = range(0,WCell.RES[0])
+                    pixel_col = WCell.RES[1]-1 if WMaze.MOV[i][1] > 0 else 0
+                    img[pixel_wall, pixel_col] = 0
         return img
 
     def to_dict(self):
