@@ -34,9 +34,9 @@ class WCell:
             if not self.neighbors[i]:
                 # N-S axle
                 if WMaze.MOV[i][0] != 0:
-                    pixels_wall = range(0,WCell.RES[1])
+                    pixel_wall = range(0,WCell.RES[1])
                     pixel_row = WCell.RES[0]-1 if WMaze.MOV[i][0] > 0 else 0
-                    img[pixel_row, pixels_wall] = 0
+                    img[pixel_row, pixel_wall] = 0
                 # O-E axle
                 else:
                     pixel_wall = range(0,WCell.RES[0])

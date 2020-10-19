@@ -1,11 +1,15 @@
 import os
-import sys
 import numpy as np
 import random
 import json as js
 import matplotlib.pyplot as plt
 
 class WCell:
+    """
+    WCell(position_vector)\n
+    Maze cell class
+    """
+
     RES=(16,16)
     MAX_NEIGH = 4
 
@@ -15,55 +19,71 @@ class WCell:
         self.neighbors = [False for i in range(WCell.MAX_NEIGH)]
 
     def to_image(self):
-        #Create numpy array image representation with resolution WCell.RES
-        img = np.ones(WCell.RES)
+        "Create numpy array image representation with resolution WCell.RES"
+        # Set image to white
+        img = np.ones(WCell.RES) * 255
 
-        # set corners to walls
+        # set corners to walls (black color)
         img[0,0] = 0
         img[WCell.RES[0]-1,0] = 0
         img[0,WCell.RES[1]-1] = 0
         img[WCell.RES[0]-1,WCell.RES[1]-1] = 0
 
-        # set wall to black
+        # iterate walls
         for i in range(0, self.MAX_NEIGH):
+            # if there is wall
             if not self.neighbors[i]:
+                # N-S axle
                 if WMaze.MOV[i][0] != 0:
-                    wall = range(0,WCell.RES[1])
-                    l = WCell.RES[0]-1 if WMaze.MOV[i][0] > 0 else 0
-                    img[l, wall] = 0
+                    pixel_wall = range(0,WCell.RES[1])
+                    pixel_row = WCell.RES[0]-1 if WMaze.MOV[i][0] > 0 else 0
+                    img[pixel_row, pixel_wall] = 0
+                # O-E axle
                 else:
-                    wall = range(0,WCell.RES[0])
-                    l = WCell.RES[1]-1 if WMaze.MOV[i][1] > 0 else 0
-                    img[wall, l] = 0
+                    pixel_wall = range(0,WCell.RES[0])
+                    pixel_col = WCell.RES[1]-1 if WMaze.MOV[i][1] > 0 else 0
+                    img[pixel_wall, pixel_col] = 0
         return img
 
+    def to_dict(self):
+        return {'value': self.value, 'neighbors': self.neighbors}
+
+    def __str__(self):
+        pos = str(self.position.tolist())[1:-1]
+        return f'"({pos})": ' + str(self.to_dict()).lower()
+
+    def __repr__(self):
+        return str(self)
+
 class WMaze:
-    # input: number of rows and columns of the maze
+    """
+    WMaze(rows, cols)\n
+    input: number of rows and columns of the maze\n\n
+    Maze class with Wilson's generator
+    """
+
+    ID_MOV = ["N", "E", "S", "O"]
     MOV = [[-1, 0], [0, 1], [1, 0], [0, -1]]
+
     def __init__(self, rows, cols):
         self.rows = rows
         self.cols = cols
-        self.mov = [[-1, 0], [0, 1], [1, 0], [0, -1]]
-        self.id_mov = ["N", "E", "S", "O"]
-        self.maze = np.array(WCell((i, j)) for i in range(rows) for j in range(cols))
 
         self.wilsonAlgorithmGen()
 
-    def json_exp(self):
-
+    def json_exp(self, filename="maze.json"):
         path = os.getcwd()
-        file = open(f"{path}/JSON_FILE.json", "w")
+        f = open(f"{path}/{filename}", "w")
 
         row = js.dumps(self.rows)
         column = js.dumps(self.cols)
-        mov = js.dumps(self.mov)
-        id = js.dumps(self.id_mov)
+        mov = js.dumps(self.MOV)
+        idm = js.dumps(self.ID_MOV)
 
         json = "{\n"
-        json += f'"rows": {row},\n"cols": {column},\n"max_n": {WCell.MAX_NEIGH},\n"mov": {mov} ,\n"id_mov": {id},\n'
+        json += f'"rows": {row},\n"cols": {column},\n"max_n": {WCell.MAX_NEIGH},\n"mov": {mov} ,\n"id_mov": {idm},\n'
         json += '"cells": {'
 
-        # file.write(json)
         matriz = self.matrix
         pos = ()
         number1 =0
@@ -77,15 +97,15 @@ class WMaze:
                 aux += "\n\t" + f'"({number1},{number2})": ' + "{" f'"value": {js.dumps(matriz[i][j].value)},"neighbors": {js.dumps(matriz[i][j].neighbors)}'+ "},"
 
         aux = aux[0:-1]
-        print(aux)
+        #print(aux)
         aux += "\n\t}\n}"
 
         json += aux
-        file.write(f'{json}')
-        file.close()
+        f.write(json)
+        f.close()
 
     def to_image(self):
-        #Convert WMaze to a numpy array describing image
+        "Convert WMaze to a numpy array describing image"
         get_pix = lambda r, c: (WCell.RES[0] * r, WCell.RES[1] * c)
         img = np.zeros(get_pix(self.rows, self.cols))
 
@@ -97,10 +117,11 @@ class WMaze:
         return img
 
     def __reset(self):
-        #Reset matrix to empty maze state
+        "Reset matrix to empty maze state"
         self.matrix = [[WCell([y, x]) for x in range(0, self.cols)] for y in range(0, self.rows)]
 
     def wilsonAlgorithmGen(self):
+        "Generate maze using Wilson's algorithm"
         self.__reset()
         if self.rows < 1 or self.cols < 1:
             return
@@ -127,7 +148,7 @@ class WMaze:
                     walk = walk[:walk.index(pair)]
                 walk.append(pair)
                 row, col = random.choice(
-                    list(filter(fits_boundary, np.array(self.mov) + self.matrix[row][col].position)))
+                    list(filter(fits_boundary, np.array(self.MOV) + self.matrix[row][col].position)))
 
             # follow path and build maze
             row, col = walk[0]
@@ -139,22 +160,17 @@ class WMaze:
                 except ValueError:
                     pass
                 mov = np.array(adj) - self.matrix[row][col].position
-                side = self.mov.index(mov.tolist())
-                op_side = self.mov.index((-1 * mov).tolist())
+                side = self.MOV.index(mov.tolist())
+                op_side = self.MOV.index((-1 * mov).tolist())
                 self.matrix[row][col].neighbors[side] = True
                 row, col = adj
                 self.matrix[row][col].neighbors[op_side] = True
-        #  exportAll = exportingCell + exportingMaze
-        #  print(exportAll)
-
-        # file = open(f"{ruta}/JSON_FILE.txt", "w")
-        # file.write(exportAll)
-        # file.close()
 
 def main():
     while True:
-        print(
-            "Welcome to our maze program, please, choose an option:\n\t 1. Implementation of the algorithm. \n\t 2. Close program.")
+        print("""Welcome to our maze program, please, choose an option: \n\t
+        1. Run the algorithm. \n\t
+        2. Close program.""")
         option = int(input())
         #The number of rows and columns are intialized to 1 in order to avoid problems
 
