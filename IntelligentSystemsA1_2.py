@@ -50,9 +50,11 @@ class WMaze:
         self.wilsonAlgorithmGen()
 
     def json_exp(self):
-
+        #current path
         path = os.getcwd()
+        #open or create json file
         file = open(f"{path}/JSON_FILE.json", "w")
+
 
         row = js.dumps(self.rows)
         column = js.dumps(self.cols)
@@ -63,12 +65,13 @@ class WMaze:
         json += f'"rows": {row},\n"cols": {column},\n"max_n": {WCell.MAX_NEIGH},\n"mov": {mov} ,\n"id_mov": {id},\n'
         json += '"cells": {'
 
-        # file.write(json)
+        #maze cells
         matriz = self.matrix
         pos = ()
         number1 =0
         number2 = 0
         aux = ''
+        #extracting elements for each cell and dump
         for i in range(len(matriz)):
             for j in range(len(matriz[i])):
                 pos = matriz[i][j].position
@@ -76,11 +79,12 @@ class WMaze:
                 number2= pos[1]
                 aux += "\n\t" + f'"({number1},{number2})": ' + "{" f'"value": {js.dumps(matriz[i][j].value)},"neighbors": {js.dumps(matriz[i][j].neighbors)}'+ "},"
 
+        #delete the last ','
         aux = aux[0:-1]
-        print(aux)
         aux += "\n\t}\n}"
 
         json += aux
+        #write json file
         file.write(f'{json}')
         file.close()
 
@@ -148,8 +152,8 @@ class WMaze:
 
 def main():
     while True:
-        print(
-            "Welcome to our maze program, please, choose an option:\n\t 1. Implementation of the algorithm. \n\t 2. Close program.")
+        print("Welcome to our maze program, please, choose an option:"
+            "\n\t 1. Implementation of the algorithm. \n\t 2. Close program.")
         option = int(input())
         #The number of rows and columns are intialized to 1 in order to avoid problems
 
@@ -160,19 +164,21 @@ def main():
                 rows = int(input())
                 print("Introduce value for columns")
                 cols = int(input())
-                if rows > 0 and cols > 0:
+                if rows > 1 and cols > 1:
                     positive = True
                 else:
-                    print("Maze dimensions must be positive, type them again, please.")
+                    print("Maze dimensions must higher than 1, type them again, please.")
 
             lab = WMaze(rows, cols)
+            print(f'Json file has been created in {os.getcwd()}\n')
             lab.json_exp()
 
             img = lab.to_image()
             plt.imshow(img)
             plt.show()
         elif option == 2:
-            print("Have a nice day!!")
+            print("Exiting program...")
+            sys.exit(101)
             break
         else:
             print("You pressed a wrong option... \t Press a key to continue.")
