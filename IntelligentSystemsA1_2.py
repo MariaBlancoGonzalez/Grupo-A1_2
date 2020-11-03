@@ -1,3 +1,4 @@
+from vector import SortedVector
 from linkedlist import LinkedList
 import os
 import numpy as np
