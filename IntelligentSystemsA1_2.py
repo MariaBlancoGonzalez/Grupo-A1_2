@@ -1,3 +1,4 @@
+#!/usr/bin/python
 from vector import SortedVector
 from linkedlist import LinkedList
 import os
