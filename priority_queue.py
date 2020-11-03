@@ -1,3 +1,5 @@
+#PRIORITY QUEUE CLASS IMPLEMENTATION (UNFINISHED)
+
 class Node:
     """Node(obj)\nobj - data object\n
     Priority Queue node element"""
