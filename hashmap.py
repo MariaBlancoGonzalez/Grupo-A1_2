@@ -45,14 +45,15 @@ class BucketHashMap:
         return sorted(list(self.hmap.keys()))
 
     def get(self, k):
-        "Return data object under given bucket"
+        "Return data object under given index"
+        # TODO
         return self.hmap[k]
 
     def insert(self, elem, sort_by=(lambda x: x)):
         """Insert element in ascending order of the value returned by sort_by\n
-        Returns bucket of the new inserted element"""
+        Returns index of the new inserted element"""
         return 0
 
     def remove(self, k):
-        "Remove element at given bucket and return its value"
+        "Remove element at given index and return its value"
         return None

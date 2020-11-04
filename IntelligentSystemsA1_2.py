@@ -7,6 +7,16 @@ import random
 import json as js
 import matplotlib.pyplot as plt
 
+class Problem:
+    def __init__(self):
+        self.initial = None
+        self.objective = None
+        self.maze_file = ""
+
+    @staticmethod
+    def from_json(self):
+        pass
+
 class WCell:
     """
     WCell(position_vector)\n
