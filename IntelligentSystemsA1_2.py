@@ -13,9 +13,23 @@ class Problem:
         self.objective = None
         self.maze_file = ""
 
+    def goal(self, state):
+        "Check if current state is the goal state"
+        return tuple(state) == self.objective
+
     @staticmethod
-    def from_json(self):
-        pass
+    def from_json(self, fn='problem.json'):
+        with open(fn, 'w') as pfile:
+            json = pfile.read()
+        data = eval(json)
+        # ignore case and load the values
+        for k in data:
+            if k.lower() == 'initial':
+                self.initial = tuple(data[k])
+            elif k.lower() == 'objetive':
+                self.objective = tuple(data[k])
+            elif k.lower() == 'maze':
+                self.maze_file = data[k]
 
 class WCell:
     """
@@ -83,6 +97,10 @@ class WMaze:
         self.cols = cols
 
         self.wilsonAlgorithmGen()
+
+    def succesor_fn(self, state):
+        "Generate succesors of a given state"
+        # TODO
 
     def to_json(self):
         "Convert maze to a json string"
