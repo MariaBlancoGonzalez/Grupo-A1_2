@@ -100,7 +100,14 @@ class WMaze:
 
     def succesor_fn(self, state):
         "Generate succesors of a given state"
-        # TODO
+        cell = WCell(self.matrix[state[0]][state[1]])
+        # (mov, state, cost)
+        succesors = []
+        for i in range(0, cell.MAX_NEIGH):
+            if cell.neighbors[i]:
+                succesor_state = tuple(np.array(self.MOV[i]) + cell.position)
+                succesors.append((self.ID_MOV[i], succesor_state, 1))
+        return succesors
 
     def to_json(self):
         "Convert maze to a json string"
