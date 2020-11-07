@@ -67,11 +67,14 @@ class WMaze:
     ID_MOV = ["N", "E", "S", "O"]
     MOV = [[-1, 0], [0, 1], [1, 0], [0, -1]]
 
-    def __init__(self, rows, cols):
+    def __init__(self, rows, cols, option, filedata):
         self.rows = rows
         self.cols = cols
-
-        self.wilsonAlgorithmGen()
+        
+        if option == False:
+            self.wilsonAlgorithmGen()
+        elif option == True:
+            self.altWilsonAlgorithm(filedata)
 
     def to_json(self):
         "Convert maze to a json string"
@@ -172,12 +175,28 @@ class WMaze:
                 self.matrix[row][col].neighbors[side] = True
                 row, col = adj
                 self.matrix[row][col].neighbors[op_side] = True
+                
+    def alternWilsonAlgorithm(self, data):
+        """In this method we read the json file in order to retreive the most important information from it.\n
+        These are the value and neighbors variable from each cell, so that we can print the maze."""
+        
+        counter = 1
+        self.matrix = [[WCell([y, x]) for x in range(0, self.cols)] for y in range(0, self.rows)]
+
+        for i in data['cells']:
+            for j in data['cells'][i]:
+                # As it takes the value twice, we use a counter variable, so that we only take that information once.
+                if (counter % 2 == 0):
+                    self.matrix[int(i[1])][int(i[4])].value = data['cells'][i]['value']
+                    self.matrix[int(i[1])][int(i[4])].neighbors = data['cells'][i]['neighbors']
+                counter += 1
 
 def main():
     while True:
         print("""Welcome to our maze program, please, choose an option: \n\t
         1. Run the algorithm. \n\t
-        2. Close program.""")
+        2. Read .json file. \n\t
+        3. Close program.""")
         option = int(input())
         #The number of rows and columns are intialized to 1 in order to avoid problems
 
@@ -201,6 +220,19 @@ def main():
             plt.imshow(img)
             plt.show()
         elif option == 2:
+            file = open('sucesores_10X10_maze.json', "r")
+            data = js.loads(file.read())
+            rows = data['rows']
+            cols = data['cols']
+
+            lab = WMaze(rows, cols, True, data)
+            print(f'Json file has been created in {os.getcwd()}\n')
+            lab.json_exp()
+            img = lab.to_image()
+            plt.imshow(img)
+            plt.show()
+            file.close()
+        elif option == 3:
             print("Exiting program...")
             break
         else:
