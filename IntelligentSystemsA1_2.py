@@ -67,14 +67,14 @@ class WMaze:
     ID_MOV = ["N", "E", "S", "O"]
     MOV = [[-1, 0], [0, 1], [1, 0], [0, -1]]
 
-    def __init__(self, rows, cols, option, filedata):
+    def __init__(self, rows, cols, filedata=None):
         self.rows = rows
         self.cols = cols
         # In the first case, we receive the rows and columns from the user.
-        if option == False:
+        if filedata is None:
             self.wilsonAlgorithmGen()
         # In the second case, we receive the rows, the columns from the .json file passed.
-        elif option == True:
+        elif filedata is None:
             self.altWilsonAlgorithm(filedata)
 
     def to_json(self):
@@ -226,7 +226,7 @@ def main():
             rows = data['rows']
             cols = data['cols']
 
-            lab = WMaze(rows, cols, True, data)
+            lab = WMaze(rows, cols, data)
             print(f'Json file has been created in {os.getcwd()}\n')
             lab.json_exp()
             img = lab.to_image()
