@@ -70,9 +70,10 @@ class WMaze:
     def __init__(self, rows, cols, option, filedata):
         self.rows = rows
         self.cols = cols
-        
+        # In the first case, we receive the rows and columns from the user.
         if option == False:
             self.wilsonAlgorithmGen()
+        # In the second case, we receive the rows, the columns from the .json file passed.
         elif option == True:
             self.altWilsonAlgorithm(filedata)
 
@@ -176,7 +177,7 @@ class WMaze:
                 row, col = adj
                 self.matrix[row][col].neighbors[op_side] = True
                 
-    def alternWilsonAlgorithm(self, data):
+    def altWilsonAlgorithm(self, data):
         """In this method we read the json file in order to retreive the most important information from it.\n
         These are the value and neighbors variable from each cell, so that we can print the maze."""
         
