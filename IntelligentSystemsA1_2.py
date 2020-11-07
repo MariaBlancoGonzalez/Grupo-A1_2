@@ -74,7 +74,7 @@ class WMaze:
         if filedata is None:
             self.wilsonAlgorithmGen()
         # In the second case, we receive the rows, the columns from the .json file passed.
-        elif filedata is None:
+        else:
             self.altWilsonAlgorithm(filedata)
 
     def to_json(self):
