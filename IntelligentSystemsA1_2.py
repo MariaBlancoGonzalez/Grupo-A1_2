@@ -1,3 +1,4 @@
+#!/usr/bin/python
 from vector import SortedVector
 from linkedlist import LinkedList
 import os
@@ -5,6 +6,30 @@ import numpy as np
 import random
 import json as js
 import matplotlib.pyplot as plt
+
+class Problem:
+    def __init__(self):
+        self.initial = None
+        self.objective = None
+        self.maze_file = ""
+
+    def goal(self, state):
+        "Check if current state is the goal state"
+        return tuple(state) == self.objective
+
+    @staticmethod
+    def from_json(self, fn='problem.json'):
+        with open(fn, 'w') as pfile:
+            json = pfile.read()
+        data = eval(json)
+        # ignore case and load the values
+        for k in data:
+            if k.lower() == 'initial':
+                self.initial = tuple(data[k])
+            elif k.lower() == 'objetive':
+                self.objective = tuple(data[k])
+            elif k.lower() == 'maze':
+                self.maze_file = data[k]
 
 class WCell:
     """
@@ -76,6 +101,17 @@ class WMaze:
         # In the second case, we receive the rows, the columns from the .json file passed.
         else:
             self.altWilsonAlgorithm(filedata)
+
+    def succesor_fn(self, state):
+        "Generate succesors of a given state"
+        cell = WCell(self.matrix[state[0]][state[1]])
+        # (mov, state, cost)
+        succesors = []
+        for i in range(0, cell.MAX_NEIGH):
+            if cell.neighbors[i]:
+                succesor_state = tuple(np.array(self.MOV[i]) + cell.position)
+                succesors.append((self.ID_MOV[i], succesor_state, 1))
+        return succesors
 
     def to_json(self):
         "Convert maze to a json string"
