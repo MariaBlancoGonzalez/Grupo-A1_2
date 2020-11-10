@@ -1,4 +1,6 @@
 #!/usr/bin/python
+from hashmap import BucketHashMap
+from Heap import Heap
 from vector import SortedVector
 from linkedlist import LinkedList
 import os
@@ -100,7 +102,7 @@ class WMaze:
             self.wilsonAlgorithmGen()
         # In the second case, we receive the rows, the columns from the .json file passed.
         else:
-            self.altWilsonAlgorithm(filedata)
+            self.from_json_file(filedata)
 
     def succesor_fn(self, state):
         "Generate succesors of a given state"
@@ -213,20 +215,28 @@ class WMaze:
                 row, col = adj
                 self.matrix[row][col].neighbors[op_side] = True
                 
-    def altWilsonAlgorithm(self, data):
+    def from_json_file(self, data):
         """In this method we read the json file in order to retreive the most important information from it.\n
         These are the value and neighbors variable from each cell, so that we can print the maze."""
         
-        counter = 1
+        with open(data, 'r') as f:
+            data = js.loads(f.read())
+
+        self.rows = data['rows']
+        self.cols = data['cols']
+        self.ID_MOV = data['id_mov']
+        self.MOV = data['mov']
+
+        tmp = WCell.MAX_NEIGH
+        WCell.MAX_NEIGH = data['max_n']
         self.matrix = [[WCell([y, x]) for x in range(0, self.cols)] for y in range(0, self.rows)]
+        WCell.MAX_NEIGH = tmp
 
         for i in data['cells']:
             for j in data['cells'][i]:
-                # As it takes the value twice, we use a counter variable, so that we only take that information once.
-                if (counter % 2 == 0):
-                    self.matrix[int(i[1])][int(i[4])].value = data['cells'][i]['value']
-                    self.matrix[int(i[1])][int(i[4])].neighbors = data['cells'][i]['neighbors']
-                counter += 1
+                r,c = i[1:-1].split(',')
+                self.matrix[int(r)][int(c)].value = data['cells'][i]['value']
+                self.matrix[int(r)][int(c)].neighbors = data['cells'][i]['neighbors']
 
 def main():
     while True:
@@ -257,18 +267,12 @@ def main():
             plt.imshow(img)
             plt.show()
         elif option == 2:
-            file = open('sucesores_10X10_maze.json', "r")
-            data = js.loads(file.read())
-            rows = data['rows']
-            cols = data['cols']
-
-            lab = WMaze(rows, cols, data)
+            lab = WMaze(1, 1, 'sucesores_10X10_maze.json')
             print(f'Json file has been created in {os.getcwd()}\n')
             lab.json_exp()
             img = lab.to_image()
             plt.imshow(img)
             plt.show()
-            file.close()
         elif option == 3:
             print("Exiting program...")
             break

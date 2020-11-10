@@ -4,7 +4,8 @@ Optimized to work with maze solving intelligent system.
 """
 
 class Node:
-    """Node(obj)\nobj - data object\n
+    """Node(obj)\n
+    obj - data object\n
     Linked list node element"""
 
     def __init__(self, obj):
@@ -16,10 +17,11 @@ class Node:
         return self.obj
 
 class LinkedList:
-    """LinkedList()\n
+    """LinkedList(sort_by=(lambda x: x))\n
     Linked list implementation for Python"""
 
-    def __init__(self):
+    def __init__(self, sort_by=(lambda x: x)):
+        self.sort_by = sort_by
         self.length = 0
         self.head = None
 
@@ -56,9 +58,8 @@ class LinkedList:
             raise IndexError
         return node
 
-    def insert(self, elem, sort_by=(lambda x: x)):
-        """Insert object in ascending order of sort_by parameter\n
-        Returns index of newly inserted node"""
+    def insert(self, elem):
+        "Insert object in ascending order of sort_by parameter"
         self.length += 1
         pos = 0
         n = self.head
@@ -79,7 +80,6 @@ class LinkedList:
         tail = n.forward
         n.forward = Node(elem)
         n.forward.forward = tail
-        return pos + 1
 
     def remove(self, i):
         "Removes node at given index and returns its data object"
