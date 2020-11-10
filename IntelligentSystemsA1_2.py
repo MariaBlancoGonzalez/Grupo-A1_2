@@ -233,10 +233,9 @@ class WMaze:
         WCell.MAX_NEIGH = tmp
 
         for i in data['cells']:
-            for j in data['cells'][i]:
-                r,c = i[1:-1].split(',')
-                self.matrix[int(r)][int(c)].value = data['cells'][i]['value']
-                self.matrix[int(r)][int(c)].neighbors = data['cells'][i]['neighbors']
+            r,c = i[1:-1].split(',')
+            self.matrix[int(r)][int(c)].value = data['cells'][i]['value']
+            self.matrix[int(r)][int(c)].neighbors = data['cells'][i]['neighbors']
 
 def main():
     while True:
