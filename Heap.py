@@ -3,10 +3,9 @@ Heap sorted queue implementation.
 """
 
 class Heap:
-    """Heap(sort_by=(lambda x: x))\n
+    """Heap()\n
     Store elements in a heap list"""
-    def __init__(self, sort_by=(lambda x: x)):
-        self.sort_by = sort_by
+    def __init__(self):
         self.arr = []
 
     def __len__(self):
@@ -22,8 +21,8 @@ class Heap:
         "Return data object under given index"
         return self.arr[i]
 
-    def insert(self, elem):
-        """Insert element in ascending order of the value returned by sort_by"""
+    def push(self, elem):
+        """Insert element in ascending order"""
         size = len(self)
         if size == 0:
             self.arr.append(elem)
@@ -32,16 +31,16 @@ class Heap:
             for i in range((size // 2)-1, -1, -1):
                 self.heapify(size, i)
 
-    def remove(self, i):
-        "Remove element at given index and return its value"
+    def pop(self):
+        "Remove the first element and return its value"
         size = len(self)
             
-        self.arr[i], self.arr[size-1] = self.arr[size-1], self.arr[i]
+        self.arr[0], self.arr[size-1] = self.arr[size-1], self.arr[0]
 
         obj = self.arr.pop(size-1)
         
-        for j in range((len(self.arr) // 2)-1, -1, -1):
-            self.heapify(len(self.arr), j)
+        for i in range((len(self.arr) // 2)-1, -1, -1):
+            self.heapify(len(self.arr), i)
 
         return obj
 
@@ -50,10 +49,10 @@ class Heap:
         leftChild = 2 * i + 1
         rightChild = 2 * i + 2 
         
-        if leftChild < n and self.sort_by(self.arr[i]) > self.sort_by(self.arr[leftChild]):
+        if leftChild < n and self.arr[i] > self.arr[leftChild]:
             smallest = leftChild
         
-        if rightChild < n and self.sort_by(self.arr[smallest]) > self.sort_by(self.arr[rightChild]):
+        if rightChild < n and self.arr[smallest] > self.arr[rightChild]:
             smallest = rightChild
         
         if smallest != i:

@@ -4,10 +4,9 @@ Optimized to work with maze solving intelligent system.
 """
 
 class SortedVector:
-    """SortedVector(sort_by=(lambda x: x))\n
+    """SortedVector()\n
     Store elements in a sorted list"""
-    def __init__(self, sort_by=(lambda x: x)):
-        self.sort_by = sort_by
+    def __init__(self):
         self.vector = []
 
     def __len__(self):
@@ -30,9 +29,9 @@ class SortedVector:
         # por ejemplo:
         return self.vector[i]
 
-    def insert(self, elem):
-        "Insert element in ascending order of the value returned by sort_by"
+    def push(self, elem):
+        "Insert element in ascending order"
 
-    def remove(self, i):
-        "Remove element at given index and return its value"
+    def pop(self):
+        "Remove the first element and return its value"
         return None

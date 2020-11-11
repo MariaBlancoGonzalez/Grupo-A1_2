@@ -4,11 +4,10 @@ Optimized to work with maze solving intelligent system.
 """
 
 class BucketHashMap:
-    """BucketHashMap(sort_by=(lambda x: x), bucket_width=1)\n
+    """BucketHashMap(bucket_width=1)\n
     Store buckets of elements"""
 
-    def __init__(self, sort_by=(lambda x: x), bucket_width=1):
-        self.sort_by = sort_by
+    def __init__(self, bucket_width=1):
         self.width = max(abs(bucket_width), 1)
         self.hmap = {}
 
@@ -50,9 +49,9 @@ class BucketHashMap:
         # TODO
         return self.hmap[i]
 
-    def insert(self, elem):
-        "Insert element in ascending order of the value returned by sort_by"
+    def push(self, elem):
+        "Insert element in ascending order"
 
-    def remove(self, i):
-        "Remove element at given index and return its value"
+    def pop(self):
+        "Remove the first element and return its value"
         return None
