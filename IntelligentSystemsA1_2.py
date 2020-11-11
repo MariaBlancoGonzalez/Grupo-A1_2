@@ -9,11 +9,13 @@ import matplotlib.pyplot as plt
 import string
 
 
-class Node_C:
+class STDNode:
     DEPTH = 0
+    IDC = 0
 
     def __init__(self, id_node, cost, id_state, id_parent, action, heuristic, value):
-        self.id_node = id_node
+        self.id_node = STDNode.IDC
+        STDNode.IDC += 1
         self.cost = 1
         self.id_state = id_state  #tupla de estado (celda), desde initial
         self.id_parent = id_parent
@@ -22,14 +24,27 @@ class Node_C:
         self.value = value
 
     def createNode(self, state):
-        self.id_node = random.randint(1000000000, 9999999999)
+        #assigned values?
         succesors = WMaze.succesor_fn(state)
 
-    def insertNode(self):
-        return self.List.insert(self)
+    def __int__(self):
+        return int(self.value)
 
-    def getNode(self):
-        return self.List.pop()
+    def __gt__(self, other):
+        return self.value > other.value
+
+    def __lt__(self, other):
+        return self.value < other.value
+
+    def __eq__(self, other):
+        return self.value == other.value
+
+    def __str__(self):
+        return f"[{self.id_node}][{self.id_state}][{self.id_parent}]" \
+               f"[{self.value}][{self.action}][{self.heuristic}]"
+
+    def __repr__(self):
+        return str(self)
 
     # Node implementation
     '''Lista de nodos para guardar objetos nodo y hashmap para guardar nodos colocados.
@@ -64,11 +79,13 @@ class Problem:
             elif k.lower() == 'maze':
                 self.maze_file = data[k]
 
-    def createNodes(self):
-        Node_C.createNode(Problem.initial)
-
     #def insertFrontier(self):
         # Convertir a nodo y meterlo en frontier
+    def insertNode(self):
+        return self.List.insert(self)
+
+    def getNode(self):
+        return self.List.pop()
 
     def getFrontier(self):
         return self.Frontier.get_node(0)
