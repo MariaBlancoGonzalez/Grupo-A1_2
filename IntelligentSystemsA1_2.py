@@ -8,15 +8,20 @@ import matplotlib.pyplot as plt
 
 class STNode:
     IDC = 0
-    def __init__(self, cost, state, id_parent, action, heuristic, value):
+    def __init__(self, depth, cost, state, id_parent, action, heuristic, value):
         self.id = STNode.IDC
         STNode.IDC += 1
-        self.cost = 1
+        self.depth = depth
+        self.cost = cost
         self.state = state  #tupla de estado (celda), desde initial
         self.id_parent = id_parent
         self.action = action
         self.heuristic = heuristic
         self.value = value
+
+    def __str__(self):
+        # [<ID>][<COST>,<ID_STATE>,<ID_PARENT>,<ACTION>,<DEPTH>,<HEURISTIC>,<VALUE>]
+        return f"[{self.id}][{self.value}]"
 
     def __int__(self):
         return int(self.value)
@@ -39,14 +44,18 @@ class STNode:
         else:
             return self.value == other
 
-    def __str__(self):
-        # [<ID>][<COST>,<ID_STATE>,<ID_PARENT>,<ACTION>,<DEPTH>,<HEURISTIC>,<VALUE>]
-        return f"[{self.id}][{self.value}]"
-
     def __repr__(self):
         return str(self)
 
+    # Node implementation
+    '''Lista de nodos para guardar objetos nodo y hashmap para guardar nodos colocados.
+    Crear nodos (desde el initial), meterlo en lista, sacarlo y con state buscar a sus sucesores,
+    una vez tengamos sus sucesores, introducir sus nodos en frontier(ordenacion hecha por maciej = rey de python)
+    Sacar el primer elemento del frontier y repetir proceso'''
+
 class Problem:
+    FRONTIER = BucketHashMap
+
     def __init__(self):
         self.initial = None
         self.objective = None
@@ -55,6 +64,14 @@ class Problem:
     def goal(self, state):
         "Check if current state is the goal state"
         return tuple(state) == self.objective
+
+    def insertNode(self):
+        # TODO
+        return None
+
+    def getNode(self):
+        # TODO
+        return None
 
     @staticmethod
     def from_json(self, fn='problem.json'):
@@ -75,7 +92,6 @@ class WCell:
     WCell(position_vector)\n
     Maze cell class
     """
-
     RES=(16,16)
     MAX_NEIGH = 4
 
@@ -129,6 +145,7 @@ class WMaze:
     """
 
     ID_MOV = ["N", "E", "S", "O"]
+
     MOV = [[-1, 0], [0, 1], [1, 0], [0, -1]]
 
     def __init__(self, rows, cols, filedata=None):
@@ -274,6 +291,7 @@ class WMaze:
             self.matrix[int(r)][int(c)].value = data['cells'][i]['value']
             self.matrix[int(r)][int(c)].neighbors = data['cells'][i]['neighbors']
 
+
 def main():
     while True:
         print("""Welcome to our maze program, please, choose an option: \n\t
@@ -304,11 +322,10 @@ def main():
             plt.show()
         elif option == 2:
             lab = WMaze(1, 1, 'sucesores_10X10_maze.json')
-            print(f'Json file has been created in {os.getcwd()}\n')
-            lab.json_exp()
             img = lab.to_image()
             plt.imshow(img)
             plt.show()
+
         elif option == 3:
             print("Exiting program...")
             break
