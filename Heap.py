@@ -1,5 +1,6 @@
 """
-Heap sorted queue implementation.
+Heap sorted queue implementation.\n
+Hello there
 """
 
 class Heap:
