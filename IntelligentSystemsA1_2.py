@@ -1,8 +1,5 @@
 #!/usr/bin/python
-from hashmap import BucketHashMap
-from Heap import Heap
 from vector import SortedVector
-from linkedlist import LinkedList
 import os
 import numpy as np
 import random

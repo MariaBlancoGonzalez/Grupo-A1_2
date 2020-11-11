@@ -24,7 +24,7 @@ class Heap:
     def push(self, elem):
         """Insert element in ascending order"""
         size = len(self)
-        if size == 0:
+        if size < 1:
             self.arr.append(elem)
         else:
             self.arr.append(elem)
@@ -33,14 +33,14 @@ class Heap:
 
     def pop(self):
         "Remove the first element and return its value"
-        size = len(self)
+        size = len(self.arr)
             
         self.arr[0], self.arr[size-1] = self.arr[size-1], self.arr[0]
 
         obj = self.arr.pop(size-1)
         
-        for i in range((len(self.arr) // 2)-1, -1, -1):
-            self.heapify(len(self.arr), i)
+        for i in range((size // 2)-1, -1, -1):
+            self.heapify(size, i)
 
         return obj
 
