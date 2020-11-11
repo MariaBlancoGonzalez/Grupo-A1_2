@@ -31,7 +31,7 @@ class Problem:
             elif k.lower() == 'objetive':
                 self.objective = tuple(data[k])
             elif k.lower() == 'maze':
-                self.maze_file = data[k]
+                self.maze_file = os.path.join(os.path.dirname(fn), data[k])
 
 class WCell:
     """
