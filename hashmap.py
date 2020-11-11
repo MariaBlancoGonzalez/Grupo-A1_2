@@ -44,14 +44,51 @@ class BucketHashMap:
     def keys(self):
         return sorted(list(self.hmap.keys()))
 
+    def bucket(self, value):
+        "Convert integer value to bucket key"
+        s = self.width * (value // self.width)
+        return (s, s + self.width)
+
     def get(self, i):
         "Return data object under given index"
-        # TODO
-        return self.hmap[i]
+        ks = self.keys()
+        for k in ks:
+            size = len(self.hmap[k])
+            if size <= i:
+                i -= size
+            else:
+                return self.hmap[k][i]
+        raise IndexError
 
     def push(self, elem):
         "Insert element in ascending order"
+        ks = self.keys()
+        b = self.bucket(int(elem))
+        if b not in ks:
+            self.hmap[b] = []
+        
+        size = len(self.hmap[b])
+        x = 0
+        while x < size and self.hmap[b][x] < elem:
+            x += 1
+
+        if x >= size:
+            self.hmap[b].append(elem)
+        else:
+            self.hmap[b].append(None)
+            for i in reversed(range(x,len(self.hmap[b]))):
+                self.hmap[b][i] = self.hmap[b][i-1]
+            self.hmap[b][x] = elem
 
     def pop(self):
         "Remove the first element and return its value"
-        return None
+        ks = self.keys()
+        if len(ks) < 1:
+            raise IndexError
+        obj = self.hmap[ks[0]].pop(0)
+
+        # remove empty bucket
+        if len(self.hmap[ks[0]]) < 1:
+            self.hmap.pop(ks[0])
+
+        return obj

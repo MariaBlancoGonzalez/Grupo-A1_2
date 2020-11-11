@@ -16,6 +16,9 @@ class STNode:
         STNode.IDC += 1
         self.value = v
 
+    def __int__(self):
+        return int(self.value)
+
     def __gt__(self, other):
         return self.value > other.value
 
