@@ -1,37 +1,46 @@
 #!/usr/bin/python
-from vector import SortedVector
+
+from hashmap import BucketHashMap
 import os
 import numpy as np
 import random
 import json as js
 import matplotlib.pyplot as plt
+import string
 
-class STNode:
-    IDC = 0
-    def __init__(self, v):
-        self.id = STNode.IDC
-        STNode.IDC += 1
-        self.value = v
 
-    def __int__(self):
-        return int(self.value)
+class Node_C:
+    DEPTH = 0
 
-    def __gt__(self, other):
-        return self.value > other.value
+    def __init__(self, id_node, cost, id_state, id_parent, action, heuristic, value):
+        self.id_node = id_node
+        self.cost = 1
+        self.id_state = id_state  #tupla de estado (celda), desde initial
+        self.id_parent = id_parent
+        self.action = action
+        self.heuristic = heuristic
+        self.value = value
 
-    def __lt__(self, other):
-        return self.value < other.value
-    
-    def __eq__(self, other):
-        return self.value == other.value
+    def createNode(self, state):
+        self.id_node = random.randint(1000000000, 9999999999)
+        succesors = WMaze.succesor_fn(state)
 
-    def __str__(self):
-        return f"[{self.id}][{self.value}]"
+    def insertNode(self):
+        return self.List.insert(self)
 
-    def __repr__(self):
-        return str(self)
+    def getNode(self):
+        return self.List.pop()
+
+    # Node implementation
+    '''Lista de nodos para guardar objetos nodo y hashmap para guardar nodos colocados.
+    Crear nodos (desde el initial), meterlo en lista, sacarlo y con state buscar a sus sucesores,
+    una vez tengamos sus sucesores, introducir sus nodos en frontier(ordenacion hecha por maciej = rey de python)
+    Sacar el primer elemento del frontier y repetir proceso'''
 
 class Problem:
+    FRONTIER = BucketHashMap
+    NODE_L = []
+
     def __init__(self):
         self.initial = None
         self.objective = None
@@ -53,14 +62,22 @@ class Problem:
             elif k.lower() == 'objetive':
                 self.objective = tuple(data[k])
             elif k.lower() == 'maze':
-                self.maze_file = os.path.join(os.path.dirname(fn), data[k])
+                self.maze_file = data[k]
+
+    def createNodes(self):
+        Node_C.createNode(Problem.initial)
+
+    #def insertFrontier(self):
+        # Convertir a nodo y meterlo en frontier
+
+    def getFrontier(self):
+        return self.Frontier.get_node(0)
 
 class WCell:
     """
     WCell(position_vector)\n
     Maze cell class
     """
-
     RES=(16,16)
     MAX_NEIGH = 4
 
@@ -114,6 +131,7 @@ class WMaze:
     """
 
     ID_MOV = ["N", "E", "S", "O"]
+
     MOV = [[-1, 0], [0, 1], [1, 0], [0, -1]]
 
     def __init__(self, rows, cols, filedata=None):
@@ -135,6 +153,7 @@ class WMaze:
             if cell.neighbors[i]:
                 succesor_state = tuple(np.array(self.MOV[i]) + cell.position)
                 succesors.append((self.ID_MOV[i], succesor_state, 1))
+        print(succesors)
         return succesors
 
     def to_json(self):
@@ -251,13 +270,14 @@ class WMaze:
 
         tmp = WCell.MAX_NEIGH
         WCell.MAX_NEIGH = data['max_n']
-        self.__reset()
+        self.matrix = [[WCell([y, x]) for x in range(0, self.cols)] for y in range(0, self.rows)]
         WCell.MAX_NEIGH = tmp
 
         for i in data['cells']:
             r,c = i[1:-1].split(',')
             self.matrix[int(r)][int(c)].value = data['cells'][i]['value']
             self.matrix[int(r)][int(c)].neighbors = data['cells'][i]['neighbors']
+
 
 def main():
     while True:
@@ -289,11 +309,10 @@ def main():
             plt.show()
         elif option == 2:
             lab = WMaze(1, 1, 'sucesores_10X10_maze.json')
-            print(f'Json file has been created in {os.getcwd()}\n')
-            lab.json_exp()
             img = lab.to_image()
             plt.imshow(img)
             plt.show()
+
         elif option == 3:
             print("Exiting program...")
             break
