@@ -17,11 +17,10 @@ class Node:
         return self.obj
 
 class LinkedList:
-    """LinkedList(sort_by=(lambda x: x))\n
+    """LinkedList()\n
     Linked list implementation for Python"""
 
-    def __init__(self, sort_by=(lambda x: x)):
-        self.sort_by = sort_by
+    def __init__(self):
         self.length = 0
         self.head = None
 
@@ -58,39 +57,29 @@ class LinkedList:
             raise IndexError
         return node
 
-    def insert(self, elem):
-        "Insert object in ascending order of sort_by parameter"
+    def push(self, elem):
+        "Insert object in ascending order"
         self.length += 1
-        pos = 0
         n = self.head
         if n is None:
             self.head = Node(elem)
-            return pos
-
-        if sort_by(elem) < sort_by(n.get()):
+        elif elem < n.get():
             tail = self.head
             self.head = Node(elem)
             self.head.forward = tail
-            return pos
+        else:
+            while n.forward is not None and elem > n.forward.get():
+                n = n.forward
 
-        while n.forward is not None and sort_by(elem) > sort_by(n.forward.get()):
-            pos += 1
-            n = n.forward
+            tail = n.forward
+            n.forward = Node(elem)
+            n.forward.forward = tail
 
-        tail = n.forward
-        n.forward = Node(elem)
-        n.forward.forward = tail
-
-    def remove(self, i):
-        "Removes node at given index and returns its data object"
+    def pop(self):
+        "Remove the first element and return its value"
         if self.length < 1:
             raise IndexError
-        if i == 0:
-            r = self.head
-            self.head = self.head.forward
-        else:
-            n = self.get_node(i-1)
-            r = n.forward
-            n.forward = r.forward
+        r = self.head
+        self.head = self.head.forward
         self.length -= 1
         return r.get()
