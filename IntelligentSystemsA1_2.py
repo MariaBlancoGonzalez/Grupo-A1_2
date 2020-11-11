@@ -1,5 +1,5 @@
 #!/usr/bin/python
-from vector import SortedVector
+from hashmap import BucketHashMap
 import os
 import numpy as np
 import random

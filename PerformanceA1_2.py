@@ -11,8 +11,8 @@ def performance(tf):
     STNode.IDC = 0
     start = time.time()
     frontier = tf()
-    for i in range(20000):
-        frontier.push(STNode(random.randint(0,10)))
+    for i in range(30000):
+        frontier.push(STNode(random.randint(0,1000)))
         if i % 8 == 0:
             frontier.pop()
     end = time.time()
