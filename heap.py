@@ -58,4 +58,4 @@ class Heap:
         
         if largest != i:
             self.arr[i],self.arr[largest] = self.arr[largest],self.arr[i]
-            heapify(self.arr, n, largest)
+            self.heapify(n, largest)

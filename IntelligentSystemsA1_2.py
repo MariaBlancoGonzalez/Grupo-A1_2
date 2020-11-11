@@ -8,24 +8,39 @@ import matplotlib.pyplot as plt
 
 class STNode:
     IDC = 0
-    def __init__(self, v):
+    def __init__(self, cost, state, id_parent, action, heuristic, value):
         self.id = STNode.IDC
         STNode.IDC += 1
-        self.value = v
+        self.cost = 1
+        self.state = state  #tupla de estado (celda), desde initial
+        self.id_parent = id_parent
+        self.action = action
+        self.heuristic = heuristic
+        self.value = value
 
     def __int__(self):
         return int(self.value)
 
     def __gt__(self, other):
-        return self.value > other.value
+        if type(other) is STNode:
+            return self.value > other.value
+        else:
+            return self.value > other
 
     def __lt__(self, other):
-        return self.value < other.value
+        if type(other) is STNode:
+            return self.value < other.value
+        else:
+            return self.value < other
     
     def __eq__(self, other):
-        return self.value == other.value
+        if type(other) is STNode:
+            return self.value == other.value
+        else:
+            return self.value == other
 
     def __str__(self):
+        # [<ID>][<COST>,<ID_STATE>,<ID_PARENT>,<ACTION>,<DEPTH>,<HEURISTIC>,<VALUE>]
         return f"[{self.id}][{self.value}]"
 
     def __repr__(self):
@@ -35,7 +50,7 @@ class Problem:
     def __init__(self):
         self.initial = None
         self.objective = None
-        self.maze_file = ""
+        self.maze_file = None
 
     def goal(self, state):
         "Check if current state is the goal state"
