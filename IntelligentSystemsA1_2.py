@@ -9,6 +9,28 @@ import random
 import json as js
 import matplotlib.pyplot as plt
 
+class STNode:
+    IDC = 0
+    def __init__(self, v):
+        self.id = STNode.IDC
+        STNode.IDC += 1
+        self.value = v
+
+    def __gt__(self, other):
+        return self.value > other.value
+
+    def __lt__(self, other):
+        return self.value < other.value
+    
+    def __eq__(self, other):
+        return self.value == other.value
+
+    def __str__(self):
+        return f"[{self.id}][{self.value}]"
+
+    def __repr__(self):
+        return str(self)
+
 class Problem:
     def __init__(self):
         self.initial = None
@@ -229,7 +251,7 @@ class WMaze:
 
         tmp = WCell.MAX_NEIGH
         WCell.MAX_NEIGH = data['max_n']
-        self.matrix = [[WCell([y, x]) for x in range(0, self.cols)] for y in range(0, self.rows)]
+        self.__reset()
         WCell.MAX_NEIGH = tmp
 
         for i in data['cells']:

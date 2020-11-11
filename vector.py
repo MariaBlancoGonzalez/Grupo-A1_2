@@ -10,28 +10,33 @@ class SortedVector:
         self.vector = []
 
     def __len__(self):
-        # TODO: aqui tenemos que devolver vector length
-        return 0
+        return len(self.vector)
 
     def __getitem__(self, i):
-        # con esto se puede acceder elementos como SortedVector_instance[index de elemento]
-        # ya esta implementado
         return self.get(i)
 
     def __iter__(self):
-        # con esto se puede hacer loops, por ejemplo: for x in SortedVector_inst: print(x)
-        # ya esta implementado
         return iter(self.vector)
 
     def get(self, i):
         "Return data object under given index"
-        # aqui devolvemos el valor de index specificado en una manera controlada
-        # por ejemplo:
         return self.vector[i]
 
     def push(self, elem):
         "Insert element in ascending order"
+        size = len(self.vector)
+        x = 0
+        while x < size and self.vector[x] < elem:
+            x += 1
+
+        if x >= size:
+            self.vector.append(elem)
+        else:
+            self.vector.append(None)
+            for i in reversed(range(x,len(self.vector))):
+                self.vector[i] = self.vector[i-1]
+            self.vector[x] = elem
 
     def pop(self):
         "Remove the first element and return its value"
-        return None
+        return self.vector.pop(0)
