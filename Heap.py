@@ -23,7 +23,7 @@ class Heap:
 
     def push(self, elem):
         """Insert element in ascending order"""
-        size = len(self)
+        size = len(self.arr)
         if size < 1:
             self.arr.append(elem)
         else:
@@ -35,8 +35,8 @@ class Heap:
         "Remove the first element and return its value"
         size = len(self.arr)
             
+        # remove element at 0
         self.arr[0], self.arr[size-1] = self.arr[size-1], self.arr[0]
-
         obj = self.arr.pop(size-1)
         
         for i in range((size // 2)-1, -1, -1):
@@ -44,17 +44,18 @@ class Heap:
 
         return obj
 
+    #For Min-Heap, both leftChild and rightChild must be smaller than the parent for all nodes.
     def heapify(self, n, i):
-        smallest = i
+        largest = i
         leftChild = 2 * i + 1
         rightChild = 2 * i + 2 
         
-        if leftChild < n and self.arr[i] > self.arr[leftChild]:
-            smallest = leftChild
+        if leftChild < n and self.arr[i] < self.arr[leftChild]:
+            largest = leftChild
         
-        if rightChild < n and self.arr[smallest] > self.arr[rightChild]:
-            smallest = rightChild
+        if rightChild < n and self.arr[largest] < self.arr[rightChild]:
+            largest = rightChild
         
-        if smallest != i:
-            self.arr[i], self.arr[smallest] = self.arr[smallest], self.arr[i]
-            self.heapify(n, smallest)
+        if largest != i:
+            self.arr[i],self.arr[largest] = self.arr[largest],self.arr[i]
+            heapify(self.arr, n, largest)
