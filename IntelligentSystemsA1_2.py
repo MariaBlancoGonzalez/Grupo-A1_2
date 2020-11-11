@@ -7,6 +7,10 @@ import json as js
 import matplotlib.pyplot as plt
 
 class STNode:
+    """
+    STNode(depth, cost, state, id_parent, action, heuristic, value)\n
+    SearchTree Node implementation.
+    """
     IDC = 0
     def __init__(self, depth, cost, state, id_parent, action, heuristic, value):
         self.id = STNode.IDC
@@ -21,7 +25,7 @@ class STNode:
 
     def __str__(self):
         # [<ID>][<COST>,<ID_STATE>,<ID_PARENT>,<ACTION>,<DEPTH>,<HEURISTIC>,<VALUE>]
-        return f"[{self.id}][{self.value}]"
+        return f"[{self.id}][{self.cost}{self.state}{self.id_parent}{self.action}{self.depth}{self.heuristic}{self.value}]"
 
     def __int__(self):
         return int(self.value)
@@ -48,10 +52,10 @@ class STNode:
         return str(self)
 
     # Node implementation
-    '''Lista de nodos para guardar objetos nodo y hashmap para guardar nodos colocados.
-    Crear nodos (desde el initial), meterlo en lista, sacarlo y con state buscar a sus sucesores,
-    una vez tengamos sus sucesores, introducir sus nodos en frontier(ordenacion hecha por maciej = rey de python)
-    Sacar el primer elemento del frontier y repetir proceso'''
+    #'''Lista de nodos para guardar objetos nodo y hashmap para guardar nodos colocados.
+    #Crear nodos (desde el initial), meterlo en lista, sacarlo y con state buscar a sus sucesores,
+    #una vez tengamos sus sucesores, introducir sus nodos en frontier(ordenacion hecha por maciej = rey de python)
+    #Sacar el primer elemento del frontier y repetir proceso'''
 
 class Problem:
     FRONTIER = BucketHashMap
