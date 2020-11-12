@@ -5,7 +5,7 @@ Optimized to work with maze solving intelligent system.
 
 class SortedVector:
     """SortedVector()\n
-    Store elements in a sorted list"""
+    Store elements in a sorted list using bisection"""
     def __init__(self):
         self.vector = []
 
@@ -22,12 +22,23 @@ class SortedVector:
         "Return data object under given index"
         return self.vector[i]
 
+    def _bisection(self, y, start, end):
+        "Find position of y using bisection"
+        print(f"s={start} e={end}")
+        if start == end:
+            return end
+
+        x = start + (end - start) // 2
+        if self.vector[x] < y:
+            x = self._bisection(y, x + 1, end)
+        else:
+            x = self._bisection(y, start, x)
+        return x
+
     def push(self, elem):
         "Insert element in ascending order"
         size = len(self.vector)
-        x = 0
-        while x < size and self.vector[x] < elem:
-            x += 1
+        x = self._bisection(elem, 0, size)
 
         if x >= size:
             self.vector.append(elem)
