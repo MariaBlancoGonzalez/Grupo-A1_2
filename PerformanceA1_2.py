@@ -19,13 +19,14 @@ def performance(tf):
     return end - start
 
 def main():
-    test = [('SortedVector', SortedVector), ('BucketHashMap', BucketHashMap), ('LinkedList', LinkedList)]
+    test = [SortedVector, BucketHashMap, LinkedList]
     for x in test:
-        print("\n{0}:".format(x[0]))
+        print("\n{0}:".format(str(x)))
         t = 0.0
         for _ in range(3):
-            t += performance(x[1])
-            print(t)
+            tp = performance(x)
+            t += tp
+            print(tp)
         print("Average: {0}".format(t / 3))
 
 if __name__ == "__main__":

@@ -24,7 +24,6 @@ class SortedVector:
 
     def _bisection(self, y, start, end):
         "Find position of y using bisection"
-        print(f"s={start} e={end}")
         if start == end:
             return end
 

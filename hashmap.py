@@ -60,6 +60,18 @@ class BucketHashMap:
                 return self.hmap[k][i]
         raise IndexError
 
+    def _bisection(self, b, y, start, end):
+        "Find position of y using bisection"
+        if start == end:
+            return end
+
+        x = start + (end - start) // 2
+        if self.hmap[b][x] < y:
+            x = self._bisection(b, y, x + 1, end)
+        else:
+            x = self._bisection(b, y, start, x)
+        return x
+
     def push(self, elem):
         "Insert element in ascending order"
         ks = self.keys()
@@ -68,9 +80,7 @@ class BucketHashMap:
             self.hmap[b] = []
         
         size = len(self.hmap[b])
-        x = 0
-        while x < size and self.hmap[b][x] < elem:
-            x += 1
+        x = self._bisection(b, elem, 0, size)
 
         if x >= size:
             self.hmap[b].append(elem)
