@@ -39,10 +39,8 @@ class SortedVector:
         size = len(self.vector)
         x = self._bisection(elem, 0, size)
 
-        if x >= size:
-            self.vector.append(elem)
-        else:
-            self.vector.append(None)
+        self.vector.append(elem)
+        if x < size:
             for i in reversed(range(x,len(self.vector))):
                 self.vector[i] = self.vector[i-1]
             self.vector[x] = elem

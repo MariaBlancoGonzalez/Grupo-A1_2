@@ -9,6 +9,7 @@ class BucketHashMap:
 
     def __init__(self, bucket_width=1):
         self.width = max(abs(bucket_width), 1)
+        self.__keys = []
         self.hmap = {}
 
     def __len__(self):
@@ -21,7 +22,6 @@ class BucketHashMap:
         return self.get(i)
 
     def __iter__(self):
-        self.__keys = self.keys()
         self.__ckey = 0
         self.__ci = 0
         return self
@@ -41,8 +41,9 @@ class BucketHashMap:
         else:
             raise StopIteration
 
-    def keys(self):
-        return sorted(list(self.hmap.keys()))
+    def get_keys(self):
+        "Get list of current buckets"
+        return list(self.__keys)
 
     def bucket(self, value):
         "Convert integer value to bucket key"
@@ -51,8 +52,7 @@ class BucketHashMap:
 
     def get(self, i):
         "Return data object under given index"
-        ks = self.keys()
-        for k in ks:
+        for k in self.__keys:
             size = len(self.hmap[k])
             if size <= i:
                 i -= size
@@ -60,27 +60,35 @@ class BucketHashMap:
                 return self.hmap[k][i]
         raise IndexError
 
-    def _bisection(self, b, y, start, end):
+    def _bisection(self, array, y, start, end):
         "Find position of y using bisection"
         if start == end:
             return end
 
         x = start + (end - start) // 2
-        if self.hmap[b][x] < y:
-            x = self._bisection(b, y, x + 1, end)
+        if array[x] < y:
+            x = self._bisection(array, y, x + 1, end)
         else:
-            x = self._bisection(b, y, start, x)
+            x = self._bisection(array, y, start, x)
         return x
 
     def push(self, elem):
         "Insert element in ascending order"
-        ks = self.keys()
         b = self.bucket(int(elem))
-        if b not in ks:
+        if b not in self.__keys:
+            size = len(self.__keys)
+            x = self._bisection(self.__keys, b, 0, size)
+
+            self.__keys.append(b)
+            if x < size:
+                for i in reversed(range(x,len(self.__keys))):
+                    self.__keys[i] = self.__keys[i - 1]
+                self.__keys[x] = b
+
             self.hmap[b] = []
         
         size = len(self.hmap[b])
-        x = self._bisection(b, elem, 0, size)
+        x = self._bisection(self.hmap[b], elem, 0, size)
 
         if x >= size:
             self.hmap[b].append(elem)
@@ -92,13 +100,13 @@ class BucketHashMap:
 
     def pop(self):
         "Remove the first element and return its value"
-        ks = self.keys()
-        if len(ks) < 1:
+        if len(self.__keys) < 1:
             raise IndexError
-        obj = self.hmap[ks[0]].pop(0)
+        obj = self.hmap[self.__keys[0]].pop(0)
 
         # remove empty bucket
-        if len(self.hmap[ks[0]]) < 1:
-            self.hmap.pop(ks[0])
+        if len(self.hmap[self.__keys[0]]) < 1:
+            self.hmap.pop(self.__keys[0])
+            self.__keys.pop(0)
 
         return obj
