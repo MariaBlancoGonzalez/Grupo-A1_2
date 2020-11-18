@@ -332,7 +332,7 @@ def main():
             img = PIL.Image.fromarray(lab.to_image())
             img.show()
         elif option == 2:
-            lab = WMaze(1, 1, 'sucesores_10X10_maze.json')
+            lab = WMaze(1, 1, input('Filepath: '))
             img = PIL.Image.fromarray(lab.to_image())
             img.show()
 
