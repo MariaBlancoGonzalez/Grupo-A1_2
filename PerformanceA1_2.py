@@ -6,6 +6,7 @@ from IntelligentSystemsA1_2 import STNode
 from vector import SortedVector
 from hashmap import BucketHashMap
 from linkedlist import LinkedList
+from heap import Heap
 
 def performance(tf, nodes=50000, value=1000, pop=8):
     """
@@ -28,7 +29,7 @@ def performance(tf, nodes=50000, value=1000, pop=8):
     return end - start
 
 def main():
-    test = [SortedVector, BucketHashMap, LinkedList]
+    test = [Heap, SortedVector, BucketHashMap, LinkedList]
     print("Running performance test...")
     for x in test:
         print("\n{0}:".format(str(x)))

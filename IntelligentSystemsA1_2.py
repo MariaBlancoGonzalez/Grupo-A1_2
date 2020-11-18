@@ -1,5 +1,5 @@
 #!/usr/bin/python
-from hashmap import BucketHashMap
+from heap import Heap
 import os
 import numpy as np
 import random
@@ -31,18 +31,21 @@ class STNode:
         return int(self.value)
 
     def __gt__(self, other):
+        # TODO
         if type(other) is STNode:
             return self.value > other.value
         else:
             return self.value > other
 
     def __lt__(self, other):
+        # TODO
         if type(other) is STNode:
             return self.value < other.value
         else:
             return self.value < other
     
     def __eq__(self, other):
+        # TODO : iguales son con el mismo ID
         if type(other) is STNode:
             return self.value == other.value
         else:
@@ -58,12 +61,16 @@ class STNode:
     #Sacar el primer elemento del frontier y repetir proceso'''
 
 class Problem:
-    FRONTIER = BucketHashMap
+    FRONTIER = Heap
 
     def __init__(self):
         self.initial = None
         self.objective = None
         self.maze_file = None
+
+    def heuristic(self, state):
+        "Calculate heuristic"
+        # TODO
 
     def goal(self, state):
         "Check if current state is the goal state"
