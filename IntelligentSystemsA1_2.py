@@ -4,7 +4,7 @@ import os
 import numpy as np
 import random
 import json as js
-import matplotlib.pyplot as plt
+import PIL.Image
 
 class STNode:
     """
@@ -103,7 +103,8 @@ class WCell:
     WCell(position_vector)\n
     Maze cell class
     """
-    RES=(16,16)
+    COLORS = {} # TODO
+    RES = (16,16)
     MAX_NEIGH = 4
 
     def __init__(self, position):
@@ -328,14 +329,12 @@ def main():
             print(f'Json file has been created in {os.getcwd()}\n')
             lab.json_exp()
 
-            img = lab.to_image()
-            plt.imshow(img)
-            plt.show()
+            img = PIL.Image.fromarray(lab.to_image())
+            img.show()
         elif option == 2:
             lab = WMaze(1, 1, 'sucesores_10X10_maze.json')
-            img = lab.to_image()
-            plt.imshow(img)
-            plt.show()
+            img = PIL.Image.fromarray(lab.to_image())
+            img.show()
 
         elif option == 3:
             print("Exiting program...")
