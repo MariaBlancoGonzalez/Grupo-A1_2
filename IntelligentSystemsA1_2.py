@@ -336,10 +336,11 @@ class Problem:
         return depth
 
     def heuristic(self, state):
-        "Calculate heuristic"
-        # TODO
-        # Heuristic((row,column))= |row-target_row| + |column-target_column|
-        return abs(1)
+        """
+        Calculate heuristic
+        """
+        heuristic = abs(state[0] - self.objective[0]) + abs(state[1] - self.objective[1])
+        return heuristic
 
     def goal(self, state):
         "Check if current state is the goal state"
