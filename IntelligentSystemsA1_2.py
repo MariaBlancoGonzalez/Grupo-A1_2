@@ -15,10 +15,13 @@ class WCell:
     RES = (16,16)
     MAX_NEIGH = 4
 
-    def __init__(self, position):
+    def __init__(self, position, val=0):
         self.position = np.array(position)
-        self.value = 0
+        self.value = val
         self.neighbors = [False for i in range(WCell.MAX_NEIGH)]
+
+    def cost(self):
+        return self.value + 1
 
     def to_image(self):
         "Create numpy array image representation with resolution WCell.RES"
@@ -79,14 +82,17 @@ class WMaze:
             self.from_json_file(filedata)
 
     def succesor_fn(self, state):
-        "Generate succesors of a given state"
+        """
+        Generate succesors of a given state
+
+        Returns a list of (mov, state, cost)
+        """
         cell = WCell(self.matrix[state[0]][state[1]])
-        # (mov, state, cost)
         succesors = []
         for i in range(0, cell.MAX_NEIGH):
             if cell.neighbors[i]:
                 succesor_state = tuple(np.array(self.MOV[i]) + cell.position)
-                succesors.append((self.ID_MOV[i], succesor_state, 1))
+                succesors.append((self.ID_MOV[i], succesor_state, cell.cost()))
         return succesors
 
     def to_json(self):
@@ -217,13 +223,14 @@ class STNode:
     SearchTree Node implementation.
     """
     IDC = 0
-    def __init__(self, depth, cost, state, id_parent, action, heuristic, value):
+    def __init__(self, depth, cost, state, parent, action, heuristic, value):
         self.id = STNode.IDC
         STNode.IDC += 1
         self.depth = depth
         self.cost = cost
         self.state = state  #tupla de estado (celda), desde initial
-        self.id_parent = id_parent
+        self.parent = parent
+        self.id_parent = parent.id
         self.action = action
         self.heuristic = heuristic
         self.value = value
@@ -266,6 +273,7 @@ class Problem:
     Load and solve search tree problem.
     """
     CFRONT = Heap
+    ALGORITHM = 'BREADTH'
 
     def __init__(self, init: tuple, obj: tuple, maze: WMaze):
         self.initial = init
@@ -275,23 +283,63 @@ class Problem:
 
     def solve(self):
         "Build tree and return solution STNode"
-        return None
+        if self.ALGORITHM == 'DEPTH':
+            i = 0
+            solution = None
+            while solution is None:
+                solution = self._solve(i)
+                i += 1
+            return solution
+        else:
+            return self._solve()
+
+    def _solve(self, limit=None):
+        h = self.heuristic(self.initial)
+        value = self.algorithmValue(0, 0, h)
+        root = STNode(0, 0, self.initial, None, None, h, value)
+        self.frontier.push(root)
+
+        nodo = None
+        while len(self.frontier) > 0:
+            nodo = self.frontier.pop()
+
+            if self.goal(nodo.state):
+                break
+
+            for s in self.maze.succesor_fn(nodo.state):
+                h = self.heuristic(s[1])
+                depth = nodo.depth + 1
+                if limit is not None and depth > limit:
+                    break
+                cost = nodo.cost + s[2]
+                value = self.algorithmValue(depth, cost, h)
+
+                successor = STNode(depth, cost, s[1], nodo, s[0], h, value)
+                self.frontier.push(successor)
+
+        return nodo
+
+    def algorithmValue(self, depth, cost, heuristic):
+        if self.ALGORITHM == 'BREADTH':
+            return depth
+        elif self.ALGORITHM == 'DEPTH':
+            return -depth
+        elif self.ALGORITHM == 'UNIFORM':
+            return cost
+        elif self.ALGORITHM == 'GREEDY':
+            return heuristic
+        elif self.ALGORITHM == "'A":
+            return cost + heuristic
+        return depth
 
     def heuristic(self, state):
         "Calculate heuristic"
         # TODO
+        return 1
 
     def goal(self, state):
         "Check if current state is the goal state"
         return tuple(state) == self.objective
-
-    def insertNode(self):
-        # TODO
-        return None
-
-    def getNode(self):
-        # TODO
-        return None
 
     @staticmethod
     def from_json(fn='problem.json'):
