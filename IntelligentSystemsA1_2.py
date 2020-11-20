@@ -274,6 +274,7 @@ class Problem:
     """
     CFRONT = Heap
     ALGORITHM = 'BREADTH'
+    LIMIT = 1000000
 
     def __init__(self, init: tuple, obj: tuple, maze: WMaze):
         self.initial = init
@@ -309,6 +310,8 @@ class Problem:
             for s in self.maze.succesor_fn(nodo.state):
                 h = self.heuristic(s[1])
                 depth = nodo.depth + 1
+                if depth > self.LIMIT:
+                    break
                 if limit is not None and depth > limit:
                     break
                 cost = nodo.cost + s[2]
@@ -335,7 +338,8 @@ class Problem:
     def heuristic(self, state):
         "Calculate heuristic"
         # TODO
-        return 1
+        # Heuristic((row,column))= |row-target_row| + |column-target_column|
+        return abs(1)
 
     def goal(self, state):
         "Check if current state is the goal state"
