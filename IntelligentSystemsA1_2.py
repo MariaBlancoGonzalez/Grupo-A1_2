@@ -6,98 +6,6 @@ import random
 import json as js
 import PIL.Image
 
-class STNode:
-    """
-    STNode(depth, cost, state, id_parent, action, heuristic, value)\n
-    SearchTree Node implementation.
-    """
-    IDC = 0
-    def __init__(self, depth, cost, state, id_parent, action, heuristic, value):
-        self.id = STNode.IDC
-        STNode.IDC += 1
-        self.depth = depth
-        self.cost = cost
-        self.state = state  #tupla de estado (celda), desde initial
-        self.id_parent = id_parent
-        self.action = action
-        self.heuristic = heuristic
-        self.value = value
-
-    def __str__(self):
-        # [<ID>][<COST>,<ID_STATE>,<ID_PARENT>,<ACTION>,<DEPTH>,<HEURISTIC>,<VALUE>]
-        return f"[{self.id}][{self.cost}{self.state}{self.id_parent}{self.action}{self.depth}{self.heuristic}{self.value}]"
-
-    def __int__(self):
-        return int(self.value)
-
-    def __gt__(self, other):
-        # TODO
-        if type(other) is STNode:
-            return self.value > other.value
-        else:
-            return self.value > other
-
-    def __lt__(self, other):
-        # TODO
-        if type(other) is STNode:
-            return self.value < other.value
-        else:
-            return self.value < other
-    
-    def __eq__(self, other):
-        # TODO : iguales son con el mismo ID
-        if type(other) is STNode:
-            return self.value == other.value
-        else:
-            return self.value == other
-
-    def __repr__(self):
-        return str(self)
-
-    # Node implementation
-    #'''Lista de nodos para guardar objetos nodo y hashmap para guardar nodos colocados.
-    #Crear nodos (desde el initial), meterlo en lista, sacarlo y con state buscar a sus sucesores,
-    #una vez tengamos sus sucesores, introducir sus nodos en frontier(ordenacion hecha por maciej = rey de python)
-    #Sacar el primer elemento del frontier y repetir proceso'''
-
-class Problem:
-    FRONTIER = Heap
-
-    def __init__(self):
-        self.initial = None
-        self.objective = None
-        self.maze_file = None
-
-    def heuristic(self, state):
-        "Calculate heuristic"
-        # TODO
-
-    def goal(self, state):
-        "Check if current state is the goal state"
-        return tuple(state) == self.objective
-
-    def insertNode(self):
-        # TODO
-        return None
-
-    def getNode(self):
-        # TODO
-        return None
-
-    @staticmethod
-    def from_json(self, fn='problem.json'):
-        with open(fn, 'w') as pfile:
-            json = pfile.read()
-        data = eval(json)
-        # ignore case and load the values
-        for k in data:
-            if k.lower() == 'initial':
-                self.initial = tuple(data[k])
-            elif k.lower() == 'objetive':
-                self.objective = tuple(data[k])
-            elif k.lower() == 'maze':
-                self.maze_file = os.path.join(os.path.dirname(fn), data[k])
-
 class WCell:
     """
     WCell(position_vector)\n
@@ -303,6 +211,102 @@ class WMaze:
             self.matrix[int(r)][int(c)].value = data['cells'][i]['value']
             self.matrix[int(r)][int(c)].neighbors = data['cells'][i]['neighbors']
 
+class STNode:
+    """
+    STNode(depth, cost, state, id_parent, action, heuristic, value)\n
+    SearchTree Node implementation.
+    """
+    IDC = 0
+    def __init__(self, depth, cost, state, id_parent, action, heuristic, value):
+        self.id = STNode.IDC
+        STNode.IDC += 1
+        self.depth = depth
+        self.cost = cost
+        self.state = state  #tupla de estado (celda), desde initial
+        self.id_parent = id_parent
+        self.action = action
+        self.heuristic = heuristic
+        self.value = value
+
+    def __str__(self):
+        # [<ID>][<COST>,<ID_STATE>,<ID_PARENT>,<ACTION>,<DEPTH>,<HEURISTIC>,<VALUE>]
+        return f"[{self.id}][{self.cost}{self.state}{self.id_parent}{self.action}{self.depth}{self.heuristic}{self.value}]"
+
+    def __int__(self):
+        return int(self.value)
+
+    def __gt__(self, other):
+        # TODO order by [value][row][col][id]
+        if type(other) is STNode:
+            return self.value > other.value
+        else:
+            return self.value > other
+
+    def __lt__(self, other):
+        # TODO order by [value][row][col][id]
+        if type(other) is STNode:
+            return self.value < other.value
+        else:
+            return self.value < other
+    
+    def __eq__(self, other):
+        # TODO : iguales son con el mismo ID
+        if type(other) is STNode:
+            return self.value == other.value
+        else:
+            return self.value == other
+
+    def __repr__(self):
+        return str(self)
+
+class Problem:
+    """
+    Problem(initial_state: tuple, objective_state: tuple, maze: WMaze)
+
+    Load and solve search tree problem.
+    """
+    CFRONT = Heap
+
+    def __init__(self, init: tuple, obj: tuple, maze: WMaze):
+        self.initial = init
+        self.objective = obj
+        self.maze = maze
+        self.frontier = self.CFRONT()
+
+    def solve(self):
+        "Build tree and return solution STNode"
+        return None
+
+    def heuristic(self, state):
+        "Calculate heuristic"
+        # TODO
+
+    def goal(self, state):
+        "Check if current state is the goal state"
+        return tuple(state) == self.objective
+
+    def insertNode(self):
+        # TODO
+        return None
+
+    def getNode(self):
+        # TODO
+        return None
+
+    @staticmethod
+    def from_json(fn='problem.json'):
+        with open(fn, 'w') as pfile:
+            json = pfile.read()
+        data = eval(json)
+        # ignore case and load the values
+        for k in data:
+            if k.lower() == 'initial':
+                initial = tuple(data[k])
+            elif k.lower().replace('c','') == 'objetive':
+                objective = tuple(data[k])
+            elif k.lower() == 'maze':
+                maze_file = os.path.join(os.path.dirname(fn), data[k])
+        return Problem(initial, objective, WMaze(1,1,maze_file))
 
 def main():
     while True:
