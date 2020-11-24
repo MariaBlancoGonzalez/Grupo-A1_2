@@ -14,7 +14,7 @@ class WCell:
 
     Maze cell class
     """
-    COLORS = {0:(0,0,0), 1:(245,220,180), 2:(150,250,150), 3:(130,200,250)}
+    COLORS = {0:(255,255,255), 1:(245,220,180), 2:(150,250,150), 3:(130,200,250)}
     RES = (16,16)
     MAX_NEIGH = 4
 
@@ -22,6 +22,7 @@ class WCell:
         self.position = np.array(position)
         self.value = val
         self.neighbors = [False for i in range(WCell.MAX_NEIGH)]
+        # TODO: red: solution cell, blue: frontier and green: inner tree
         self.is_solution = False
 
     def cost(self):
@@ -30,13 +31,13 @@ class WCell:
     def to_image(self):
         "Create numpy array image representation with resolution WCell.RES"
         # Set image to white
-        img = np.ones(WCell.RES) * 255
+        img = np.ones((*WCell.RES, 1)) * self.COLORS[self.value]
 
         # set corners to walls (black color)
-        img[0,0] = 0
-        img[WCell.RES[0]-1,0] = 0
-        img[0,WCell.RES[1]-1] = 0
-        img[WCell.RES[0]-1,WCell.RES[1]-1] = 0
+        img[0,0] = np.zeros(3)
+        img[WCell.RES[0]-1,0] = np.zeros(3)
+        img[0,WCell.RES[1]-1] = np.zeros(3)
+        img[WCell.RES[0]-1,WCell.RES[1]-1] = np.zeros(3)
 
         # iterate walls
         for i in range(0, self.MAX_NEIGH):
@@ -46,13 +47,13 @@ class WCell:
                 if WMaze.MOV[i][0] != 0:
                     pixel_wall = range(0,WCell.RES[1])
                     pixel_row = WCell.RES[0]-1 if WMaze.MOV[i][0] > 0 else 0
-                    img[pixel_row, pixel_wall] = 0
+                    img[pixel_row, pixel_wall] = np.zeros(3)
                 # O-E axle
                 else:
                     pixel_wall = range(0,WCell.RES[0])
                     pixel_col = WCell.RES[1]-1 if WMaze.MOV[i][1] > 0 else 0
-                    img[pixel_wall, pixel_col] = 0
-        return img
+                    img[pixel_wall, pixel_col] = np.zeros(3)
+        return img.astype('uint8')
 
     def to_dict(self):
         return {'value': self.value, 'neighbors': self.neighbors}
@@ -145,14 +146,14 @@ class WMaze:
     def to_image(self):
         "Convert WMaze to a numpy array describing image"
         get_pix = lambda r, c: (WCell.RES[0] * r, WCell.RES[1] * c)
-        img = np.zeros(get_pix(self.rows, self.cols))
+        img = np.zeros((*get_pix(self.rows, self.cols), 3))
 
         for row in self.matrix:
             for cell in row:
                 # mark cell
                 pos = get_pix(*cell.position)
                 img[pos[0]:pos[0] + WCell.RES[0], pos[1]:pos[1] + WCell.RES[1]] = cell.to_image()
-        return img
+        return img.astype('uint8')
 
     def __reset(self):
         "Reset matrix to empty maze state"
