@@ -97,7 +97,7 @@ class WMaze:
 
         Returns a list of (mov, state, cost)
         """
-        cell = WCell(self.matrix[state[0]][state[1]])
+        cell = self.matrix[state[0]][state[1]]
         succesors = []
         for i in range(0, cell.MAX_NEIGH):
             if cell.neighbors[i]:
@@ -253,7 +253,7 @@ class STNode:
 
     def __str__(self):
         # [<ID>][<COST>,<ID_STATE>,<ID_PARENT>,<ACTION>,<DEPTH>,<HEURISTIC>,<VALUE>]
-        return f"[{self.id}][{self.cost}{self.state}{self.id_parent}{self.action}{self.depth}{self.heuristic}{self.value}]"
+        return f"[{self.id}][{self.cost},{self.state},{self.id_parent},{self.action},{self.depth},{self.heuristic},{self.value}]"
 
     def __int__(self):
         return int(self.value)
