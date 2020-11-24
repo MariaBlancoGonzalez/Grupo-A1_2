@@ -2,10 +2,14 @@
 HashMap of buckets implementation.\n
 Optimized to work with maze solving intelligent system.
 """
+from binarysearch import bisection
 
 class BucketHashMap:
-    """BucketHashMap(bucket_width=1)\n
-    Store buckets of elements"""
+    """
+    BucketHashMap(bucket_width=1)
+
+    Store buckets of elements
+    """
 
     def __init__(self, bucket_width=1):
         self.width = max(abs(bucket_width), 1)
@@ -60,24 +64,12 @@ class BucketHashMap:
                 return self.hmap[k][i]
         raise IndexError
 
-    def _bisection(self, array, y, start, end):
-        "Find position of y using bisection"
-        if start == end:
-            return end
-
-        x = start + (end - start) // 2
-        if array[x] < y:
-            x = self._bisection(array, y, x + 1, end)
-        else:
-            x = self._bisection(array, y, start, x)
-        return x
-
     def push(self, elem):
         "Insert element in ascending order"
         b = self.bucket(int(elem))
         if b not in self.__keys:
             size = len(self.__keys)
-            x = self._bisection(self.__keys, b, 0, size)
+            x = bisection(self.__keys, b, 0, size)
 
             self.__keys.append(b)
             if x < size:
@@ -88,7 +80,7 @@ class BucketHashMap:
             self.hmap[b] = []
         
         size = len(self.hmap[b])
-        x = self._bisection(self.hmap[b], elem, 0, size)
+        x = bisection(self.hmap[b], elem, 0, size)
 
         if x >= size:
             self.hmap[b].append(elem)

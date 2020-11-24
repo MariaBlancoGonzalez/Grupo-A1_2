@@ -2,6 +2,7 @@
 Vector implementation.\n
 Optimized to work with maze solving intelligent system.
 """
+from binarysearch import bisection
 
 class SortedVector:
     """SortedVector()\n
@@ -22,22 +23,10 @@ class SortedVector:
         "Return data object under given index"
         return self.vector[i]
 
-    def _bisection(self, y, start, end):
-        "Find position of y using bisection"
-        if start == end:
-            return end
-
-        x = start + (end - start) // 2
-        if self.vector[x] < y:
-            x = self._bisection(y, x + 1, end)
-        else:
-            x = self._bisection(y, start, x)
-        return x
-
     def push(self, elem):
         "Insert element in ascending order"
         size = len(self.vector)
-        x = self._bisection(elem, 0, size)
+        x = bisection(self.vector, elem, 0, size)
 
         self.vector.append(elem)
         if x < size:
