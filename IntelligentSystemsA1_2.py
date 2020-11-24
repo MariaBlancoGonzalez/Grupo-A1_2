@@ -8,7 +8,10 @@ import PIL.Image
 
 class WCell:
     """
-    WCell(position_vector)\n
+    WCell(position_vector, value)
+
+    - value -- cell type (travel cost)
+
     Maze cell class
     """
     COLORS = {} # TODO
@@ -19,6 +22,7 @@ class WCell:
         self.position = np.array(position)
         self.value = val
         self.neighbors = [False for i in range(WCell.MAX_NEIGH)]
+        self.is_solution = False
 
     def cost(self):
         return self.value + 1
@@ -219,7 +223,10 @@ class WMaze:
 
 class STNode:
     """
-    STNode(depth, cost, state, id_parent, action, heuristic, value)\n
+    STNode(depth, cost, state, parent, action, heuristic, value)
+
+    - state -- (row, col)
+
     SearchTree Node implementation.
     """
     IDC = 0
@@ -230,7 +237,10 @@ class STNode:
         self.cost = cost
         self.state = state  #tupla de estado (celda), desde initial
         self.parent = parent
-        self.id_parent = parent.id
+        if self.parent is not None:
+            self.id_parent = parent.id
+        else:
+            self.id_parent = None
         self.action = action
         self.heuristic = heuristic
         self.value = value
@@ -243,25 +253,34 @@ class STNode:
         return int(self.value)
 
     def __gt__(self, other):
-        # TODO order by [value][row][col][id]
+        # order by [value][row][col][id]
         if type(other) is STNode:
-            return self.value > other.value
+            if self.id == other.id:
+                return False
+            else:
+                return not (self < other)
         else:
             return self.value > other
 
     def __lt__(self, other):
-        # TODO order by [value][row][col][id]
+        # order by [value][row][col][id]
         if type(other) is STNode:
-            return self.value < other.value
+            As = (self.value, self.state[0], self.state[1], self.id)
+            Bs = (other.value, other.state[0], other.state[1], other.id)
+            for a,b in zip(As, Bs):
+                if a == b:
+                    continue
+                return a < b
+            return False
         else:
             return self.value < other
     
     def __eq__(self, other):
-        # TODO : iguales son con el mismo ID
+        # same state nodes are equal
         if type(other) is STNode:
-            return self.value == other.value
+            return self.state == other.state
         else:
-            return self.value == other
+            return self.state == other
 
     def __repr__(self):
         return str(self)
@@ -295,16 +314,25 @@ class Problem:
             return self._solve()
 
     def _solve(self, limit=None):
+        closed = []
+
+        # root element
         h = self.heuristic(self.initial)
         value = self.algorithmValue(0, 0, h)
         root = STNode(0, 0, self.initial, None, None, h, value)
         self.frontier.push(root)
 
-        nodo = None
+        solution = None
         while len(self.frontier) > 0:
             nodo = self.frontier.pop()
 
+            if nodo in closed:
+                continue
+
+            closed.append(nodo.state)
+
             if self.goal(nodo.state):
+                solution = nodo
                 break
 
             for s in self.maze.succesor_fn(nodo.state):
@@ -320,7 +348,7 @@ class Problem:
                 successor = STNode(depth, cost, s[1], nodo, s[0], h, value)
                 self.frontier.push(successor)
 
-        return nodo
+        return solution
 
     def algorithmValue(self, depth, cost, heuristic):
         if self.ALGORITHM == 'BREADTH':
