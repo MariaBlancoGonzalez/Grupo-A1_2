@@ -14,7 +14,7 @@ class WCell:
 
     Maze cell class
     """
-    COLORS = {} # TODO
+    COLORS = {0:(0,0,0), 1:(245,220,180), 2:(150,250,150), 3:(130,200,250)}
     RES = (16,16)
     MAX_NEIGH = 4
 
@@ -66,9 +66,14 @@ class WCell:
 
 class WMaze:
     """
-    WMaze(rows, cols)\n
-    input: number of rows and columns of the maze\n\n
+    WMaze(rows, cols, filedata=None)
+
     Maze class with Wilson's generator
+
+    Arguments:
+    - rows -- number of rows
+    - cols -- number of columns
+    - filedata -- (optional) json maze file path
     """
 
     ID_MOV = ["N", "E", "S", "O"]
@@ -290,6 +295,11 @@ class Problem:
     Problem(initial_state: tuple, objective_state: tuple, maze: WMaze)
 
     Load and solve search tree problem.
+
+    Settings:
+    - CFRONT -- frontier structure implementing push and pop
+    - ALGORITHM -- algorithm type (BREADTH, DEPTH, UNIFORM, GREEDY, 'A)
+    - LIMIT -- maximum tree depth
     """
     CFRONT = Heap
     ALGORITHM = 'BREADTH'
@@ -304,17 +314,32 @@ class Problem:
     def solve(self):
         "Build tree and return solution STNode"
         if self.ALGORITHM == 'DEPTH':
+            reached_depth = 0
             i = 0
             solution = None
             while solution is None:
-                solution = self._solve(i)
+                solution, d = self._solve(i)
+
+                # early stopping if cannot expand deeper
+                if reached_depth == d:
+                    break
+                else:
+                    reached_depth = d
+
                 i += 1
+
             return solution
         else:
-            return self._solve()
+            return self._solve()[0]
 
     def _solve(self, limit=None):
-        closed = []
+        """
+        Solve problem until given limit
+
+        Returns: (solution, depth) tuple
+        """
+        visited = []
+        maxdepth = 0
 
         # root element
         h = self.heuristic(self.initial)
@@ -326,15 +351,16 @@ class Problem:
         while len(self.frontier) > 0:
             nodo = self.frontier.pop()
 
-            if nodo in closed:
+            if nodo in visited:
                 continue
 
-            closed.append(nodo.state)
+            visited.append(nodo.state)
 
             if self.goal(nodo.state):
                 solution = nodo
                 break
 
+            maxdepth += 1
             for s in self.maze.succesor_fn(nodo.state):
                 h = self.heuristic(s[1])
                 depth = nodo.depth + 1
@@ -348,7 +374,7 @@ class Problem:
                 successor = STNode(depth, cost, s[1], nodo, s[0], h, value)
                 self.frontier.push(successor)
 
-        return solution
+        return solution, maxdepth
 
     def algorithmValue(self, depth, cost, heuristic):
         if self.ALGORITHM == 'BREADTH':
@@ -363,9 +389,9 @@ class Problem:
             return cost + heuristic
         return depth
 
-    def heuristic(self, state):
+    def heuristic(self, state: tuple):
         """
-        Calculate heuristic
+        Calculate heuristic using manhattan distance
         """
         heuristic = abs(state[0] - self.objective[0]) + abs(state[1] - self.objective[1])
         return heuristic
@@ -376,15 +402,17 @@ class Problem:
 
     @staticmethod
     def from_json(fn='problem.json'):
-        with open(fn, 'w') as pfile:
+        with open(fn, 'r') as pfile:
             json = pfile.read()
         data = eval(json)
         # ignore case and load the values
         for k in data:
             if k.lower() == 'initial':
-                initial = tuple(data[k])
+                txt = data[k].replace(' ','').replace('(','').replace(')','').split(',')
+                initial = tuple(int(x) for x in txt)
             elif k.lower().replace('c','') == 'objetive':
-                objective = tuple(data[k])
+                txt = data[k].replace(' ','').replace('(','').replace(')','').split(',')
+                objective = tuple(int(x) for x in txt)
             elif k.lower() == 'maze':
                 maze_file = os.path.join(os.path.dirname(fn), data[k])
         return Problem(initial, objective, WMaze(1,1,maze_file))
