@@ -364,10 +364,11 @@ class Problem:
         return depth
 
     def heuristic(self, state):
-        "Calculate heuristic"
-        # TODO
-        # Heuristic((row,column))= |row-target_row| + |column-target_column|
-        return abs(1)
+        """
+        Calculate heuristic
+        """
+        heuristic = abs(state[0] - self.objective[0]) + abs(state[1] - self.objective[1])
+        return heuristic
 
     def goal(self, state):
         "Check if current state is the goal state"
@@ -416,7 +417,7 @@ def main():
             img = PIL.Image.fromarray(lab.to_image())
             img.show()
         elif option == 2:
-            lab = WMaze(1, 1, 'sucesores_10X10_maze.json')
+            lab = WMaze(1, 1, input('Filepath: '))
             img = PIL.Image.fromarray(lab.to_image())
             img.show()
 
