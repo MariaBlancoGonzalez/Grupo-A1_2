@@ -356,12 +356,15 @@ class Problem:
 
     def _solve(self, limit=None):
         """
-        Solve problem until given limit
+        Solve problem until given depth limit.
 
         Returns: (solution, depth) tuple
         """
         self.visited = []
         maxdepth = 0
+
+        if limit is None:
+            limit = self.LIMIT
 
         # root element
         h = self.heuristic(self.initial)
@@ -373,9 +376,6 @@ class Problem:
         while len(self.frontier) > 0:
             nodo = self.frontier.pop()
 
-            if nodo in self.visited:
-                continue
-
             self.visited.append(nodo.state)
 
             if self.goal(nodo.state):
@@ -386,15 +386,14 @@ class Problem:
             for s in self.maze.succesor_fn(nodo.state):
                 h = self.heuristic(s[1])
                 depth = nodo.depth + 1
-                if depth > self.LIMIT:
-                    break
-                if limit is not None and depth > limit:
+                if depth > limit:
                     break
                 cost = nodo.cost + s[2]
                 value = self.algorithmValue(depth, cost, h)
 
                 successor = STNode(depth, cost, s[1], nodo, s[0], h, value)
-                self.frontier.push(successor)
+                if successor not in self.visited:
+                    self.frontier.push(successor)
 
         return solution, maxdepth
 
@@ -402,17 +401,22 @@ class Problem:
         """
         Set maze cells flags to correctly display solution.
         """
+        for row in self.maze.matrix:
+            for c in row:
+                c.is_solution = False
+                c.is_tree = False
         for s in self.visited:
-            n = self.maze.get(*s)
-            n.is_tree = True
-            n.SPECIAL_CLR = (0,255,0)
+            c = self.maze.get(*s)
+            c.is_tree = True
+            c.SPECIAL_CLR = (0,255,0)
         for n in self.frontier:
-            n.is_tree = True
-            n.SPECIAL_CLR = (0,0,255)
+            c = self.maze.get(*n.state)
+            c.is_tree = True
+            c.SPECIAL_CLR = (0,0,255)
         while solution is not None:
-            n = self.maze.get(*solution.state)
-            n.is_solution = True
-            n.SPECIAL_CLR = (255,0,0)
+            c = self.maze.get(*solution.state)
+            c.is_solution = True
+            c.SPECIAL_CLR = (255,0,0)
             solution = solution.parent
 
     def algorithmValue(self, depth, cost, heuristic):
@@ -426,7 +430,7 @@ class Problem:
             return heuristic
         elif self.ALGORITHM == "'A":
             return cost + heuristic
-        return depth
+        return None
 
     def heuristic(self, state: tuple):
         """
