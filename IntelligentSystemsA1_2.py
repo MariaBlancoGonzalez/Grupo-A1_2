@@ -15,6 +15,7 @@ class WCell:
     Maze cell class
     """
     COLORS = {0:(255,255,255), 1:(245,220,180), 2:(150,250,150), 3:(130,200,250)}
+    SPECIAL_CLR = (255,0,0)
     RES = (16,16)
     MAX_NEIGH = 4
 
@@ -22,8 +23,8 @@ class WCell:
         self.position = np.array(position)
         self.value = val
         self.neighbors = [False for i in range(WCell.MAX_NEIGH)]
-        # TODO: red: solution cell, blue: frontier and green: inner tree
         self.is_solution = False
+        self.is_tree = False
 
     def cost(self):
         return self.value + 1
@@ -31,7 +32,11 @@ class WCell:
     def to_image(self):
         "Create numpy array image representation with resolution WCell.RES"
         # Set image to white
-        img = np.ones((*WCell.RES, 1)) * self.COLORS[self.value]
+        if self.is_solution or self.is_tree:
+            clr = self.SPECIAL_CLR
+        else:
+            clr = self.COLORS[self.value]
+        img = np.ones((*WCell.RES, 1)) * clr
 
         # set corners to walls (black color)
         img[0,0] = np.zeros(3)
@@ -90,6 +95,14 @@ class WMaze:
         # In the second case, we receive the rows, the columns from the .json file passed.
         else:
             self.from_json_file(filedata)
+
+    def get(self, row, col):
+        """
+        Get WCell at given maze location.
+
+        Returns: WCell
+        """
+        return self.matrix[row][col]
 
     def succesor_fn(self, state):
         """
@@ -310,14 +323,22 @@ class Problem:
         self.initial = init
         self.objective = obj
         self.maze = maze
-        self.frontier = self.CFRONT()
+        self.frontier = None
+        self.visited = None
 
     def solve(self):
-        "Build tree and return solution STNode"
+        """
+        Build search tree and find solution path
+        
+        Returns: solution STNode
+        """
+        # reinit frontier
+        self.frontier = self.CFRONT()
+
+        solution = None
         if self.ALGORITHM == 'DEPTH':
             reached_depth = 0
             i = 0
-            solution = None
             while solution is None:
                 solution, d = self._solve(i)
 
@@ -328,10 +349,10 @@ class Problem:
                     reached_depth = d
 
                 i += 1
-
-            return solution
         else:
-            return self._solve()[0]
+            solution = self._solve()[0]
+
+        return solution
 
     def _solve(self, limit=None):
         """
@@ -339,7 +360,7 @@ class Problem:
 
         Returns: (solution, depth) tuple
         """
-        visited = []
+        self.visited = []
         maxdepth = 0
 
         # root element
@@ -352,10 +373,10 @@ class Problem:
         while len(self.frontier) > 0:
             nodo = self.frontier.pop()
 
-            if nodo in visited:
+            if nodo in self.visited:
                 continue
 
-            visited.append(nodo.state)
+            self.visited.append(nodo.state)
 
             if self.goal(nodo.state):
                 solution = nodo
@@ -376,6 +397,23 @@ class Problem:
                 self.frontier.push(successor)
 
         return solution, maxdepth
+
+    def updateMaze(self, solution: STNode):
+        """
+        Set maze cells flags to correctly display solution.
+        """
+        for s in self.visited:
+            n = self.maze.get(*s)
+            n.is_tree = True
+            n.SPECIAL_CLR = (0,255,0)
+        for n in self.frontier:
+            n.is_tree = True
+            n.SPECIAL_CLR = (0,0,255)
+        while solution is not None:
+            n = self.maze.get(*solution.state)
+            n.is_solution = True
+            n.SPECIAL_CLR = (255,0,0)
+            solution = solution.parent
 
     def algorithmValue(self, depth, cost, heuristic):
         if self.ALGORITHM == 'BREADTH':
