@@ -28,11 +28,10 @@ class SortedVector:
         size = len(self.vector)
         x = bisection(self.vector, elem, 0, size)
 
-        self.vector.append(elem)
         if x < size:
-            for i in reversed(range(x,len(self.vector))):
-                self.vector[i] = self.vector[i-1]
-            self.vector[x] = elem
+            self.vector = self.vector[:x] + [elem] + self.vector[x:]
+        else:
+            self.vector.append(elem)
 
     def pop(self):
         "Remove the first element and return its value"

@@ -22,7 +22,7 @@ def performance(tf, nodes=50000, value=1000, pop=8):
     start = time.time()
     frontier = tf()
     for i in range(nodes):
-        frontier.push(STNode(1, 1, (0,0), 0, 'N', 0, random.randint(0,value)))
+        frontier.push(STNode(1, 1, (0,0), None, 'N', 1, random.randint(0,value)))
         if i % pop == 0:
             frontier.pop()
     end = time.time()

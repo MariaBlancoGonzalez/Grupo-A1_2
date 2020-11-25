@@ -1,5 +1,7 @@
 #!/usr/bin/python
 from heap import Heap
+from vector import SortedVector
+from binarysearch import bisection
 import os
 import numpy as np
 import random
@@ -10,7 +12,8 @@ class WCell:
     """
     WCell(position_vector, value)
 
-    - value -- cell type (travel cost)
+    - position_vector -- iterable coordinates
+    - value -- int cell type (travel cost)
 
     Maze cell class
     """
@@ -170,7 +173,7 @@ class WMaze:
 
     def __reset(self):
         "Reset matrix to empty maze state"
-        self.matrix = [[WCell([y, x]) for x in range(0, self.cols)] for y in range(0, self.rows)]
+        self.matrix = [[WCell([y, x], random.randint(0,3)) for x in range(0, self.cols)] for y in range(0, self.rows)]
 
     def wilsonAlgorithmGen(self):
         "Generate maze using Wilson's algorithm"
@@ -352,6 +355,8 @@ class Problem:
         else:
             solution = self._solve()[0]
 
+        if solution is not None:
+            self.updateMaze(solution)
         return solution
 
     def _solve(self, limit=None):
@@ -360,7 +365,7 @@ class Problem:
 
         Returns: (solution, depth) tuple
         """
-        self.visited = []
+        self.visited = SortedVector()
         maxdepth = 0
 
         if limit is None:
@@ -376,7 +381,7 @@ class Problem:
         while len(self.frontier) > 0:
             nodo = self.frontier.pop()
 
-            self.visited.append(nodo.state)
+            self.visited.push(nodo.state)
 
             if self.goal(nodo.state):
                 solution = nodo
@@ -392,19 +397,25 @@ class Problem:
                 value = self.algorithmValue(depth, cost, h)
 
                 successor = STNode(depth, cost, s[1], nodo, s[0], h, value)
-                if successor not in self.visited:
+
+                index = bisection(self.visited, successor.state, 0, len(self.visited))
+                if len(self.visited) <= index or successor != self.visited[index]:
                     self.frontier.push(successor)
 
         return solution, maxdepth
+
+    def cleanMaze(self):
+        "Reset maze cells flags"
+        for row in self.maze.matrix:
+            for c in row:
+                c.is_solution = False
+                c.is_tree = False
 
     def updateMaze(self, solution: STNode):
         """
         Set maze cells flags to correctly display solution.
         """
-        for row in self.maze.matrix:
-            for c in row:
-                c.is_solution = False
-                c.is_tree = False
+        self.cleanMaze()
         for s in self.visited:
             c = self.maze.get(*s)
             c.is_tree = True

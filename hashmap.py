@@ -71,24 +71,20 @@ class BucketHashMap:
             size = len(self.__keys)
             x = bisection(self.__keys, b, 0, size)
 
-            self.__keys.append(b)
             if x < size:
-                for i in reversed(range(x,len(self.__keys))):
-                    self.__keys[i] = self.__keys[i - 1]
-                self.__keys[x] = b
+                self.__keys = self.__keys[:x] + [b] + self.__keys[x:]
+            else:
+                self.__keys.append(b)
 
             self.hmap[b] = []
         
         size = len(self.hmap[b])
         x = bisection(self.hmap[b], elem, 0, size)
 
-        if x >= size:
-            self.hmap[b].append(elem)
+        if x < size:
+            self.hmap[b] = self.hmap[b][:x] + [elem] + self.hmap[b][x:]
         else:
-            self.hmap[b].append(None)
-            for i in reversed(range(x,len(self.hmap[b]))):
-                self.hmap[b][i] = self.hmap[b][i-1]
-            self.hmap[b][x] = elem
+            self.hmap[b].append(elem)
 
     def pop(self):
         "Remove the first element and return its value"
