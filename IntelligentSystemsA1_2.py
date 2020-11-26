@@ -370,6 +370,8 @@ class Problem:
 
         if limit is None:
             limit = self.LIMIT
+        else:
+            limit = min(limit, self.LIMIT)
 
         # root element
         h = self.heuristic(self.initial)
@@ -380,6 +382,10 @@ class Problem:
         solution = None
         while len(self.frontier) > 0:
             nodo = self.frontier.pop()
+
+            index = bisection(self.visited, nodo.state, 0, len(self.visited))
+            if index < len(self.visited) and nodo == self.visited[index]:
+                continue
 
             self.visited.push(nodo.state)
 
@@ -397,10 +403,7 @@ class Problem:
                 value = self.algorithmValue(depth, cost, h)
 
                 successor = STNode(depth, cost, s[1], nodo, s[0], h, value)
-
-                index = bisection(self.visited, successor.state, 0, len(self.visited))
-                if len(self.visited) <= index or successor != self.visited[index]:
-                    self.frontier.push(successor)
+                self.frontier.push(successor)
 
         return solution, maxdepth
 
