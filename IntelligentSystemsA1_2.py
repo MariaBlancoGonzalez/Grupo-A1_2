@@ -1,4 +1,3 @@
-#!/usr/bin/python
 from heap import Heap
 from vector import SortedVector
 from binarysearch import bisection
@@ -7,6 +6,7 @@ import numpy as np
 import random
 import json as js
 import PIL.Image
+
 
 class WCell:
     """
@@ -17,9 +17,10 @@ class WCell:
 
     Maze cell class
     """
-    COLORS = {0:(255,255,255), 1:(245,220,180), 2:(150,250,150), 3:(130,200,250)}
-    SPECIAL_CLR = (255,0,0)
-    RES = (16,16)
+    COLORS = {0: (255, 255, 255), 1: (245, 220, 180),
+              2: (150, 250, 150), 3: (130, 200, 250)}
+    SPECIAL_CLR = (255, 0, 0)
+    RES = (16, 16)
     MAX_NEIGH = 4
 
     def __init__(self, position, val=0):
@@ -42,10 +43,10 @@ class WCell:
         img = np.ones((*WCell.RES, 1)) * clr
 
         # set corners to walls (black color)
-        img[0,0] = np.zeros(3)
-        img[WCell.RES[0]-1,0] = np.zeros(3)
-        img[0,WCell.RES[1]-1] = np.zeros(3)
-        img[WCell.RES[0]-1,WCell.RES[1]-1] = np.zeros(3)
+        img[0, 0] = np.zeros(3)
+        img[WCell.RES[0]-1, 0] = np.zeros(3)
+        img[0, WCell.RES[1]-1] = np.zeros(3)
+        img[WCell.RES[0]-1, WCell.RES[1]-1] = np.zeros(3)
 
         # iterate walls
         for i in range(0, self.MAX_NEIGH):
@@ -53,12 +54,12 @@ class WCell:
             if not self.neighbors[i]:
                 # N-S axle
                 if WMaze.MOV[i][0] != 0:
-                    pixel_wall = range(0,WCell.RES[1])
+                    pixel_wall = range(0, WCell.RES[1])
                     pixel_row = WCell.RES[0]-1 if WMaze.MOV[i][0] > 0 else 0
                     img[pixel_row, pixel_wall] = np.zeros(3)
                 # O-E axle
                 else:
-                    pixel_wall = range(0,WCell.RES[0])
+                    pixel_wall = range(0, WCell.RES[0])
                     pixel_col = WCell.RES[1]-1 if WMaze.MOV[i][1] > 0 else 0
                     img[pixel_wall, pixel_col] = np.zeros(3)
         return img.astype('uint8')
@@ -72,6 +73,7 @@ class WCell:
 
     def __repr__(self):
         return str(self)
+
 
 class WMaze:
     """
@@ -135,16 +137,17 @@ class WMaze:
         #maze cells
         matriz = self.matrix
         pos = ()
-        number1 =0
+        number1 = 0
         number2 = 0
         aux = ''
         #extracting elements for each cell and dump
         for i in range(len(matriz)):
             for j in range(len(matriz[i])):
                 pos = matriz[i][j].position
-                number1=pos[0]
-                number2= pos[1]
-                aux += "\n\t" + f'"({number1},{number2})": ' + "{" f'"value": {js.dumps(matriz[i][j].value)},"neighbors": {js.dumps(matriz[i][j].neighbors)}'+ "},"
+                number1 = pos[0]
+                number2 = pos[1]
+                aux += "\n\t" + f'"({number1},{number2})": ' + \
+                    "{" f'"value": {js.dumps(matriz[i][j].value)},"neighbors": {js.dumps(matriz[i][j].neighbors)}' + "},"
 
         #delete the last ','
         aux = aux[0:-1]
@@ -161,19 +164,21 @@ class WMaze:
 
     def to_image(self):
         "Convert WMaze to a numpy array describing image"
-        get_pix = lambda r, c: (WCell.RES[0] * r, WCell.RES[1] * c)
+        def get_pix(r, c): return (WCell.RES[0] * r, WCell.RES[1] * c)
         img = np.zeros((*get_pix(self.rows, self.cols), 3))
 
         for row in self.matrix:
             for cell in row:
                 # mark cell
                 pos = get_pix(*cell.position)
-                img[pos[0]:pos[0] + WCell.RES[0], pos[1]:pos[1] + WCell.RES[1]] = cell.to_image()
+                img[pos[0]:pos[0] + WCell.RES[0], pos[1]
+                    :pos[1] + WCell.RES[1]] = cell.to_image()
         return img.astype('uint8')
 
     def __reset(self):
         "Reset matrix to empty maze state"
-        self.matrix = [[WCell([y, x], random.randint(0,3)) for x in range(0, self.cols)] for y in range(0, self.rows)]
+        self.matrix = [[WCell([y, x], random.randint(0, 3)) for x in range(
+            0, self.cols)] for y in range(0, self.rows)]
 
     def wilsonAlgorithmGen(self):
         "Generate maze using Wilson's algorithm"
@@ -181,11 +186,15 @@ class WMaze:
         if self.rows < 1 or self.cols < 1:
             return
         # initialize
-        fits_boundary = lambda i: i[0] >= 0 and i[0] < self.rows and i[1] >= 0 and i[1] < self.cols
-        visited = [[False for x in range(0, self.cols)] for y in range(0, self.rows)]
-        free = [(y, x) for x in range(0, self.cols) for y in range(0, self.rows)]
+        def fits_boundary(
+            i): return i[0] >= 0 and i[0] < self.rows and i[1] >= 0 and i[1] < self.cols
+        visited = [[False for x in range(0, self.cols)]
+                   for y in range(0, self.rows)]
+        free = [(y, x) for x in range(0, self.cols)
+                for y in range(0, self.rows)]
         # set first random cell
-        visited[random.randint(0, self.rows - 1)][random.randint(0, self.cols - 1)] = True
+        visited[random.randint(0, self.rows - 1)
+                ][random.randint(0, self.cols - 1)] = True
 
         # iterate
         while len(free) > 0:
@@ -220,11 +229,11 @@ class WMaze:
                 self.matrix[row][col].neighbors[side] = True
                 row, col = adj
                 self.matrix[row][col].neighbors[op_side] = True
-                
+
     def from_json_file(self, data):
         """In this method we read the json file in order to retreive the most important information from it.\n
         These are the value and neighbors variable from each cell, so that we can print the maze."""
-        
+
         with open(data, 'r') as f:
             data = js.loads(f.read())
 
@@ -239,9 +248,11 @@ class WMaze:
         WCell.MAX_NEIGH = tmp
 
         for i in data['cells']:
-            r,c = i[1:-1].split(',')
+            r, c = i[1:-1].split(',')
             self.matrix[int(r)][int(c)].value = data['cells'][i]['value']
-            self.matrix[int(r)][int(c)].neighbors = data['cells'][i]['neighbors']
+            self.matrix[int(r)][int(
+                c)].neighbors = data['cells'][i]['neighbors']
+
 
 class STNode:
     """
@@ -252,12 +263,13 @@ class STNode:
     SearchTree Node implementation.
     """
     IDC = 0
+
     def __init__(self, depth, cost, state, parent, action, heuristic, value):
         self.id = STNode.IDC
         STNode.IDC += 1
         self.depth = depth
         self.cost = cost
-        self.state = state  #tupla de estado (celda), desde initial
+        self.state = state  # tupla de estado (celda), desde initial
         self.parent = parent
         if self.parent is not None:
             self.id_parent = parent.id
@@ -289,14 +301,14 @@ class STNode:
         if type(other) is STNode:
             As = (self.value, self.state[0], self.state[1], self.id)
             Bs = (other.value, other.state[0], other.state[1], other.id)
-            for a,b in zip(As, Bs):
+            for a, b in zip(As, Bs):
                 if a == b:
                     continue
                 return a < b
             return False
         else:
             return self.value < other
-    
+
     def __eq__(self, other):
         # same state nodes are equal
         if type(other) is STNode:
@@ -306,6 +318,7 @@ class STNode:
 
     def __repr__(self):
         return str(self)
+
 
 class Problem:
     """
@@ -419,19 +432,29 @@ class Problem:
         Set maze cells flags to correctly display solution.
         """
         self.cleanMaze()
+        path = list()
+        fl = open('SolutionPath.txt', "w")
+
         for s in self.visited:
             c = self.maze.get(*s)
             c.is_tree = True
-            c.SPECIAL_CLR = (0,255,0)
+            c.SPECIAL_CLR = (0, 255, 0)
         for n in self.frontier:
             c = self.maze.get(*n.state)
             c.is_tree = True
-            c.SPECIAL_CLR = (0,0,255)
+            c.SPECIAL_CLR = (0, 0, 255)
         while solution is not None:
             c = self.maze.get(*solution.state)
             c.is_solution = True
-            c.SPECIAL_CLR = (255,0,0)
+            c.SPECIAL_CLR = (255, 0, 0)
             solution = solution.parent
+            path.append(solution)
+        path.pop()
+        fl.write("[id][cost,state,father_id,action,depth,h,value]\n") 
+        for x in path:
+            fl.write(f'{path.pop()}\n')
+        print(fl)
+
 
     def algorithmValue(self, depth, cost, heuristic):
         if self.ALGORITHM == 'BREADTH':
@@ -444,13 +467,16 @@ class Problem:
             return heuristic
         elif self.ALGORITHM == "'A":
             return cost + heuristic
-        return None
+        else:
+            print(self.ALGORITHM)
+            return 0
 
     def heuristic(self, state: tuple):
         """
         Calculate heuristic using manhattan distance
         """
-        heuristic = abs(state[0] - self.objective[0]) + abs(state[1] - self.objective[1])
+        heuristic = abs(state[0] - self.objective[0]) + \
+            abs(state[1] - self.objective[1])
         return heuristic
 
     def goal(self, state):
@@ -465,27 +491,31 @@ class Problem:
         # ignore case and load the values
         for k in data:
             if k.lower() == 'initial':
-                txt = data[k].replace(' ','').replace('(','').replace(')','').split(',')
+                txt = data[k].replace(' ', '').replace(
+                    '(', '').replace(')', '').split(',')
                 initial = tuple(int(x) for x in txt)
-            elif k.lower().replace('c','') == 'objetive':
-                txt = data[k].replace(' ','').replace('(','').replace(')','').split(',')
+            elif k.lower().replace('c', '') == 'objetive':
+                txt = data[k].replace(' ', '').replace(
+                    '(', '').replace(')', '').split(',')
                 objective = tuple(int(x) for x in txt)
             elif k.lower() == 'maze':
                 maze_file = os.path.join(os.path.dirname(fn), data[k])
-        return Problem(initial, objective, WMaze(1,1,maze_file))
+        return Problem(initial, objective, WMaze(1, 1, maze_file))
+
 
 def main():
     while True:
         print("""Welcome to our maze program, please, choose an option: \n\t
-        1. Run the algorithm. \n\t
-        2. Read .json file. \n\t
-        3. Close program.""")
+        1. Create and see a maze (Wilson's algorithm). \n\t
+        2. Read .json file and DO NOT solve. \n\t
+        3. Import and execute (selec data structure) maze \n\t
+        4. Close program.""")
         option = int(input())
         #The number of rows and columns are intialized to 1 in order to avoid problems
 
-        positive=False
+        positive = False
         if option == 1:
-            while positive==False:
+            while positive == False:
                 print("Introduce value for rows")
                 rows = int(input())
                 print("Introduce value for columns")
@@ -493,24 +523,61 @@ def main():
                 if rows > 1 and cols > 1:
                     positive = True
                 else:
-                    print("Maze dimensions must higher than 1, type them again, please.")
+                    print(
+                        "Maze dimensions must higher than 1, type them again, please.")
 
             lab = WMaze(rows, cols)
-            print(f'Json file has been created in {os.getcwd()}\n')
-            lab.json_exp()
+
+            export = int(
+                input("Do u want to export the .json file created? \n\t No: 0 \n\t Yes: 1 \n"))
+            if(export == 1):
+                print(f'Json file has been created in {os.getcwd()}\n')
+                lab.json_exp()
 
             img = PIL.Image.fromarray(lab.to_image())
             img.show()
+
         elif option == 2:
             lab = WMaze(1, 1, input('Filepath: '))
             img = PIL.Image.fromarray(lab.to_image())
             img.show()
 
         elif option == 3:
+            prob = Problem.from_json(input('Filepath: '))
+            print("Importing and execute the maze without the final route")
+            img = PIL.Image.fromarray(prob.maze.to_image())
+            img.show()
+
+            print("""Choose an heuristic: \n\t
+            1. BREADTH \n\t
+            2. Depth \n\t
+            3. Uniform \n\t
+            4. Greedy \n\t
+            5. 'A""")
+            intro = input(' ')
+            algo = ' '
+
+            if intro == '1':
+                algo = 'BREADTH'
+            elif intro == '2':
+                algo = 'DEPTH'
+            elif intro == '3':
+                algo = 'UNIFORM'
+            elif intro == '4':
+                algo = 'GREEDY'
+            elif intro == '5':
+                algo = "'A"
+            prob.ALGORITHM = algo
+            prob.solve()
+            print("[id][cost,state,father_id,action,depth,h,value]\t")
+            img = PIL.Image.fromarray(prob.maze.to_image())
+            img.show()   
+        elif option == 4:
             print("Exiting program...")
             break
         else:
             print("You pressed a wrong option... \t Press a key to continue.")
+
 
 if __name__ == '__main__':
     main()
