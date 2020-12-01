@@ -11,10 +11,8 @@ import PIL.Image
 class WCell:
     """
     WCell(position_vector, value)
-
     - position_vector -- iterable coordinates
     - value -- int cell type (travel cost)
-
     Maze cell class
     """
     COLORS = {0: (255, 255, 255), 1: (245, 220, 180),
@@ -44,9 +42,9 @@ class WCell:
 
         # set corners to walls (black color)
         img[0, 0] = np.zeros(3)
-        img[WCell.RES[0]-1, 0] = np.zeros(3)
-        img[0, WCell.RES[1]-1] = np.zeros(3)
-        img[WCell.RES[0]-1, WCell.RES[1]-1] = np.zeros(3)
+        img[WCell.RES[0] - 1, 0] = np.zeros(3)
+        img[0, WCell.RES[1] - 1] = np.zeros(3)
+        img[WCell.RES[0] - 1, WCell.RES[1] - 1] = np.zeros(3)
 
         # iterate walls
         for i in range(0, self.MAX_NEIGH):
@@ -55,12 +53,12 @@ class WCell:
                 # N-S axle
                 if WMaze.MOV[i][0] != 0:
                     pixel_wall = range(0, WCell.RES[1])
-                    pixel_row = WCell.RES[0]-1 if WMaze.MOV[i][0] > 0 else 0
+                    pixel_row = WCell.RES[0] - 1 if WMaze.MOV[i][0] > 0 else 0
                     img[pixel_row, pixel_wall] = np.zeros(3)
                 # O-E axle
                 else:
                     pixel_wall = range(0, WCell.RES[0])
-                    pixel_col = WCell.RES[1]-1 if WMaze.MOV[i][1] > 0 else 0
+                    pixel_col = WCell.RES[1] - 1 if WMaze.MOV[i][1] > 0 else 0
                     img[pixel_wall, pixel_col] = np.zeros(3)
         return img.astype('uint8')
 
@@ -78,9 +76,7 @@ class WCell:
 class WMaze:
     """
     WMaze(rows, cols, filedata=None)
-
     Maze class with Wilson's generator
-
     Arguments:
     - rows -- number of rows
     - cols -- number of columns
@@ -104,7 +100,6 @@ class WMaze:
     def get(self, row, col):
         """
         Get WCell at given maze location.
-
         Returns: WCell
         """
         return self.matrix[row][col]
@@ -112,7 +107,6 @@ class WMaze:
     def succesor_fn(self, state):
         """
         Generate succesors of a given state
-
         Returns a list of (mov, state, cost)
         """
         cell = self.matrix[state[0]][state[1]]
@@ -134,22 +128,22 @@ class WMaze:
         json += f'"rows": {row},\n"cols": {column},\n"max_n": {WCell.MAX_NEIGH},\n"mov": {mov} ,\n"id_mov": {idm},\n'
         json += '"cells": {'
 
-        #maze cells
+        # maze cells
         matriz = self.matrix
         pos = ()
         number1 = 0
         number2 = 0
         aux = ''
-        #extracting elements for each cell and dump
+        # extracting elements for each cell and dump
         for i in range(len(matriz)):
             for j in range(len(matriz[i])):
                 pos = matriz[i][j].position
                 number1 = pos[0]
                 number2 = pos[1]
                 aux += "\n\t" + f'"({number1},{number2})": ' + \
-                    "{" f'"value": {js.dumps(matriz[i][j].value)},"neighbors": {js.dumps(matriz[i][j].neighbors)}' + "},"
+                       "{" f'"value": {js.dumps(matriz[i][j].value)},"neighbors": {js.dumps(matriz[i][j].neighbors)}' + "},"
 
-        #delete the last ','
+        # delete the last ','
         aux = aux[0:-1]
         aux += "\n\t}\n}"
         json += aux
@@ -158,13 +152,16 @@ class WMaze:
     def json_exp(self, filename="maze.json"):
         "Save json represantation of the maze to a file"
         jfile = open(filename, "w")
-        #write json file
+        # write json file
         jfile.write(self.to_json())
         jfile.close()
 
     def to_image(self):
         "Convert WMaze to a numpy array describing image"
-        def get_pix(r, c): return (WCell.RES[0] * r, WCell.RES[1] * c)
+
+        def get_pix(r, c):
+            return (WCell.RES[0] * r, WCell.RES[1] * c)
+
         img = np.zeros((*get_pix(self.rows, self.cols), 3))
 
         for row in self.matrix:
@@ -172,7 +169,7 @@ class WMaze:
                 # mark cell
                 pos = get_pix(*cell.position)
                 img[pos[0]:pos[0] + WCell.RES[0], pos[1]
-                    :pos[1] + WCell.RES[1]] = cell.to_image()
+                                                  :pos[1] + WCell.RES[1]] = cell.to_image()
         return img.astype('uint8')
 
     def __reset(self):
@@ -185,16 +182,19 @@ class WMaze:
         self.__reset()
         if self.rows < 1 or self.cols < 1:
             return
+
         # initialize
         def fits_boundary(
-            i): return i[0] >= 0 and i[0] < self.rows and i[1] >= 0 and i[1] < self.cols
+                i):
+            return i[0] >= 0 and i[0] < self.rows and i[1] >= 0 and i[1] < self.cols
+
         visited = [[False for x in range(0, self.cols)]
                    for y in range(0, self.rows)]
         free = [(y, x) for x in range(0, self.cols)
                 for y in range(0, self.rows)]
         # set first random cell
         visited[random.randint(0, self.rows - 1)
-                ][random.randint(0, self.cols - 1)] = True
+        ][random.randint(0, self.cols - 1)] = True
 
         # iterate
         while len(free) > 0:
@@ -257,9 +257,7 @@ class WMaze:
 class STNode:
     """
     STNode(depth, cost, state, parent, action, heuristic, value)
-
     - state -- (row, col)
-
     SearchTree Node implementation.
     """
     IDC = 0
@@ -323,9 +321,7 @@ class STNode:
 class Problem:
     """
     Problem(initial_state: tuple, objective_state: tuple, maze: WMaze)
-
     Load and solve search tree problem.
-
     Settings:
     - CFRONT -- frontier structure implementing push and pop
     - ALGORITHM -- algorithm type (BREADTH, DEPTH, UNIFORM, GREEDY, 'A)
@@ -345,7 +341,7 @@ class Problem:
     def solve(self):
         """
         Build search tree and find solution path
-        
+
         Returns: solution STNode
         """
         # reinit frontier
@@ -357,25 +353,23 @@ class Problem:
             i = 0
             while solution is None:
                 solution, d = self._solve(i)
-
                 # early stopping if cannot expand deeper
                 if reached_depth == d:
                     break
                 else:
                     reached_depth = d
-
                 i += 1
         else:
             solution = self._solve()[0]
 
         if solution is not None:
             self.updateMaze(solution)
+
         return solution
 
     def _solve(self, limit=None):
         """
         Solve problem until given depth limit.
-
         Returns: (solution, depth) tuple
         """
         self.visited = SortedVector()
@@ -447,14 +441,16 @@ class Problem:
             c = self.maze.get(*solution.state)
             c.is_solution = True
             c.SPECIAL_CLR = (255, 0, 0)
-            solution = solution.parent
             path.append(solution)
-        path.pop()
-        fl.write("[id][cost,state,father_id,action,depth,h,value]\n") 
-        for x in path:
-            fl.write(f'{path.pop()}\n')
-        print(fl)
+            solution = solution.parent
 
+        x = 0
+        path.reverse()
+        fl.write("[id][cost,state,father_id,action,depth,h,value]\n")
+        while (x < len(path)):
+            fl.write(f'{path[x]}\n')
+            x += 1
+        print(fl)
 
     def algorithmValue(self, depth, cost, heuristic):
         if self.ALGORITHM == 'BREADTH':
@@ -476,7 +472,7 @@ class Problem:
         Calculate heuristic using manhattan distance
         """
         heuristic = abs(state[0] - self.objective[0]) + \
-            abs(state[1] - self.objective[1])
+                    abs(state[1] - self.objective[1])
         return heuristic
 
     def goal(self, state):
@@ -511,7 +507,7 @@ def main():
         3. Import and execute (selec data structure) maze \n\t
         4. Close program.""")
         option = int(input())
-        #The number of rows and columns are intialized to 1 in order to avoid problems
+        # The number of rows and columns are intialized to 1 in order to avoid problems
 
         positive = False
         if option == 1:
@@ -530,7 +526,7 @@ def main():
 
             export = int(
                 input("Do u want to export the .json file created? \n\t No: 0 \n\t Yes: 1 \n"))
-            if(export == 1):
+            if (export == 1):
                 print(f'Json file has been created in {os.getcwd()}\n')
                 lab.json_exp()
 
@@ -549,29 +545,32 @@ def main():
             img.show()
 
             print("""Choose an heuristic: \n\t
-            1. BREADTH \n\t
+            1. Breadth \n\t
             2. Depth \n\t
             3. Uniform \n\t
             4. Greedy \n\t
             5. 'A""")
             intro = input(' ')
-            algo = ' '
+            alg = ' '
 
             if intro == '1':
-                algo = 'BREADTH'
+                alg = 'BREADTH'
             elif intro == '2':
-                algo = 'DEPTH'
+                alg = 'DEPTH'
             elif intro == '3':
-                algo = 'UNIFORM'
+                alg = 'UNIFORM'
             elif intro == '4':
-                algo = 'GREEDY'
+                alg = 'GREEDY'
             elif intro == '5':
-                algo = "'A"
-            prob.ALGORITHM = algo
-            prob.solve()
-            print("[id][cost,state,father_id,action,depth,h,value]\t")
-            img = PIL.Image.fromarray(prob.maze.to_image())
-            img.show()   
+                alg = "'A"
+            prob.ALGORITHM = alg
+            result = prob.solve()
+            if result is not None:
+                img = PIL.Image.fromarray(prob.maze.to_image())
+                img.show()
+            else:
+                print("Solution can not be found for that problem with the chosen strategy.")
+
         elif option == 4:
             print("Exiting program...")
             break
