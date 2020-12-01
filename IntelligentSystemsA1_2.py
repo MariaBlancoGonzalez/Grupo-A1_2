@@ -1,3 +1,4 @@
+#!/usr/bin/python
 from heap import Heap
 from vector import SortedVector
 from binarysearch import bisection
@@ -11,9 +12,11 @@ import PIL.Image
 class WCell:
     """
     WCell(position_vector, value)
+
+    Maze cell class
+
     - position_vector -- iterable coordinates
     - value -- int cell type (travel cost)
-    Maze cell class
     """
     COLORS = {0: (255, 255, 255), 1: (245, 220, 180),
               2: (150, 250, 150), 3: (130, 200, 250)}
@@ -76,7 +79,9 @@ class WCell:
 class WMaze:
     """
     WMaze(rows, cols, filedata=None)
+
     Maze class with Wilson's generator
+
     Arguments:
     - rows -- number of rows
     - cols -- number of columns
@@ -100,6 +105,7 @@ class WMaze:
     def get(self, row, col):
         """
         Get WCell at given maze location.
+
         Returns: WCell
         """
         return self.matrix[row][col]
@@ -107,7 +113,8 @@ class WMaze:
     def succesor_fn(self, state):
         """
         Generate succesors of a given state
-        Returns a list of (mov, state, cost)
+
+        Returns: [(mov, state, cost), ...]
         """
         cell = self.matrix[state[0]][state[1]]
         succesors = []
@@ -165,8 +172,7 @@ class WMaze:
             for cell in row:
                 # mark cell
                 pos = get_pix(*cell.position)
-                img[pos[0]:pos[0] + WCell.RES[0], pos[1]
-                                                  :pos[1] + WCell.RES[1]] = cell.to_image()
+                img[pos[0]:pos[0] + WCell.RES[0], pos[1]:pos[1] + WCell.RES[1]] = cell.to_image()
         return img.astype('uint8')
 
     def __reset(self):
@@ -181,17 +187,14 @@ class WMaze:
             return
 
         # initialize
-        def fits_boundary(
-                i):
-            return i[0] >= 0 and i[0] < self.rows and i[1] >= 0 and i[1] < self.cols
+        fits_boundary = lambda i: (i[0] >= 0 and i[0] < self.rows and i[1] >= 0 and i[1] < self.cols)
 
         visited = [[False for x in range(0, self.cols)]
-                   for y in range(0, self.rows)]
+            for y in range(0, self.rows)]
         free = [(y, x) for x in range(0, self.cols)
-                for y in range(0, self.rows)]
+            for y in range(0, self.rows)]
         # set first random cell
-        visited[random.randint(0, self.rows - 1)
-        ][random.randint(0, self.cols - 1)] = True
+        visited[random.randint(0, self.rows - 1)][random.randint(0, self.cols - 1)] = True
 
         # iterate
         while len(free) > 0:
@@ -228,8 +231,11 @@ class WMaze:
                 self.matrix[row][col].neighbors[op_side] = True
 
     def from_json_file(self, data):
-        """In this method we read the json file in order to retreive the most important information from it.\n
-        These are the value and neighbors variable from each cell, so that we can print the maze."""
+        """
+        In this method we read the json file in order to retreive the most important information from it.
+
+        These are the value and neighbors variable from each cell, so that we can print the maze.
+        """
 
         with open(data, 'r') as f:
             data = js.loads(f.read())
@@ -254,8 +260,10 @@ class WMaze:
 class STNode:
     """
     STNode(depth, cost, state, parent, action, heuristic, value)
-    - state -- (row, col)
+
     SearchTree Node implementation.
+
+    - state -- (row, col)
     """
     IDC = 0
 
@@ -318,9 +326,11 @@ class STNode:
 class Problem:
     """
     Problem(initial_state: tuple, objective_state: tuple, maze: WMaze)
+
     Load and solve search tree problem.
+
     Settings:
-    - CFRONT -- frontier structure implementing push and pop
+    - CFRONT -- frontier data structure which implements push() and pop()
     - ALGORITHM -- algorithm type (BREADTH, DEPTH, UNIFORM, GREEDY, 'A)
     - LIMIT -- maximum tree depth
     """
@@ -341,6 +351,7 @@ class Problem:
 
         Returns: solution STNode
         """
+        STNode.IDC = 0
         solution = None
         if self.ALGORITHM == 'DEPTH':
             i = 0
@@ -361,6 +372,7 @@ class Problem:
     def _solve(self, limit=None):
         """
         Solve problem until given depth limit.
+
         Returns: (solution, depth) tuple
         """
         # reinit frontier
@@ -439,7 +451,7 @@ class Problem:
 
         with open('SolutionPath.txt', "w") as fl:
             fl.write("[id][cost,state,father_id,action,depth,h,value]\n") 
-            for x in path:
+            for x in reversed(path):
                 fl.write(f'{x}\n')
             print(fl)
 
@@ -494,7 +506,7 @@ def main():
         print("""Welcome to our maze program, please, choose an option: \n\t
         1. Create and see a maze (Wilson's algorithm). \n\t
         2. Read .json file and DO NOT solve. \n\t
-        3. Import and execute (selec data structure) maze \n\t
+        3. Import and solve problem \n\t
         4. Close program.""")
         option = int(input())
         # The number of rows and columns are intialized to 1 in order to avoid problems
@@ -514,9 +526,8 @@ def main():
 
             lab = WMaze(rows, cols)
 
-            export = int(
-                input("Do u want to export the .json file created? \n\t No: 0 \n\t Yes: 1 \n"))
-            if (export == 1):
+            export = input("Do u want to export the .json file created? (y/n) ").lower() == 'y'
+            if export:
                 print(f'Json file has been created in {os.getcwd()}\n')
                 lab.json_exp()
 
@@ -553,6 +564,7 @@ def main():
                 alg = 'GREEDY'
             elif intro == '5':
                 alg = "'A"
+
             prob.ALGORITHM = alg
             result = prob.solve()
             if result is not None:
