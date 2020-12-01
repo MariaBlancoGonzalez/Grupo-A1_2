@@ -164,7 +164,7 @@ class WMaze:
 
     def to_image(self):
         "Convert WMaze to a numpy array describing image"
-        def get_pix(r, c): return (WCell.RES[0] * r, WCell.RES[1] * c)
+        get_pix = lambda r, c: (WCell.RES[0] * r, WCell.RES[1] * c)
         img = np.zeros((*get_pix(self.rows, self.cols), 3))
 
         for row in self.matrix:
@@ -348,21 +348,15 @@ class Problem:
         
         Returns: solution STNode
         """
-        # reinit frontier
-        self.frontier = self.CFRONT()
-
         solution = None
         if self.ALGORITHM == 'DEPTH':
-            reached_depth = 0
             i = 0
             while solution is None:
                 solution, d = self._solve(i)
 
                 # early stopping if cannot expand deeper
-                if reached_depth == d:
+                if d < i:
                     break
-                else:
-                    reached_depth = d
 
                 i += 1
         else:
@@ -378,6 +372,9 @@ class Problem:
 
         Returns: (solution, depth) tuple
         """
+        # reinit frontier
+        self.frontier = self.CFRONT()
+
         self.visited = SortedVector()
         maxdepth = 0
 
@@ -432,8 +429,7 @@ class Problem:
         Set maze cells flags to correctly display solution.
         """
         self.cleanMaze()
-        path = list()
-        fl = open('SolutionPath.txt', "w")
+        path = []
 
         for s in self.visited:
             c = self.maze.get(*s)
@@ -447,13 +443,14 @@ class Problem:
             c = self.maze.get(*solution.state)
             c.is_solution = True
             c.SPECIAL_CLR = (255, 0, 0)
-            solution = solution.parent
             path.append(solution)
-        path.pop()
-        fl.write("[id][cost,state,father_id,action,depth,h,value]\n") 
-        for x in path:
-            fl.write(f'{path.pop()}\n')
-        print(fl)
+            solution = solution.parent
+
+        with open('SolutionPath.txt', "w") as fl:
+            fl.write("[id][cost,state,father_id,action,depth,h,value]\n") 
+            for x in path:
+                fl.write(f'{x}\n')
+            print(fl)
 
 
     def algorithmValue(self, depth, cost, heuristic):
@@ -468,8 +465,7 @@ class Problem:
         elif self.ALGORITHM == "'A":
             return cost + heuristic
         else:
-            print(self.ALGORITHM)
-            return 0
+            raise NameError(self.ALGORITHM)
 
     def heuristic(self, state: tuple):
         """
