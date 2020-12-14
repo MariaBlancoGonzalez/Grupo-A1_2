@@ -315,7 +315,9 @@ class STNode:
 
     def __str__(self):
         # [<ID>][<COST>,<ID_STATE>,<ID_PARENT>,<ACTION>,<DEPTH>,<HEURISTIC>,<VALUE>]
-        return f"[{self.id}][{self.cost},{self.state},{self.id_parent},{self.action},{self.depth},{self.heuristic},{self.value}]"
+        h = round(float(self.heuristic), 2)
+        v = round(float(self.value), 2)
+        return f"[{self.id}][{self.cost},{self.state},{self.id_parent},{self.action},{self.depth},{h},{v}]"
 
     def __int__(self):
         return int(self.value)
@@ -461,6 +463,8 @@ class Problem:
     def updateMaze(self, solution: STNode):
         """
         Set maze cells flags to correctly display solution.
+        
+        Generates SolutionPath.txt
         """
         self.cleanMaze()
         path = []
@@ -481,16 +485,18 @@ class Problem:
             solution = solution.parent
 
         with open('SolutionPath.txt', "w") as fl:
-            fl.write("[id][cost,state,father_id,action,depth,h,value]\n") 
+            header = "[id][cost,state,father_id,action,depth,h,value]\n"
+            print(header)
+            fl.write(header) 
             for x in reversed(path):
+                print(x)
                 fl.write(f'{x}\n')
-            print(fl)
 
     def algorithmValue(self, depth, cost, heuristic):
         if self.ALGORITHM == 'BREADTH':
             return depth
         elif self.ALGORITHM == 'DEPTH':
-            return -depth
+            return 1.0 / (depth + 1)
         elif self.ALGORITHM == 'UNIFORM':
             return cost
         elif self.ALGORITHM == 'GREEDY':
