@@ -122,7 +122,7 @@ class WMaze:
         for i in range(0, cell.MAX_NEIGH):
             if cell.neighbors[i]:
                 succesor_state = tuple(np.array(self.MOV[i]) + cell.position)
-                succesors.append((self.ID_MOV[i], succesor_state, cell.cost()))
+                succesors.append((self.ID_MOV[i], succesor_state, self.get(*succesor_state).cost()))
         return succesors
 
     def to_json(self):
@@ -582,21 +582,10 @@ def main():
             3. Uniform \n\t
             4. Greedy \n\t
             5. 'A""")
-            intro = input(' ')
-            alg = ' '
+            intro = int(input(' '))
+            alg = {1:'BREADTH', 2:'DEPTH', 3:'UNIFORM', 4:'GREEDY', 5:"'A"}
 
-            if intro == '1':
-                alg = 'BREADTH'
-            elif intro == '2':
-                alg = 'DEPTH'
-            elif intro == '3':
-                alg = 'UNIFORM'
-            elif intro == '4':
-                alg = 'GREEDY'
-            elif intro == '5':
-                alg = "'A"
-
-            prob.ALGORITHM = alg
+            prob.ALGORITHM = alg[intro]
             result = prob.solve()
             if result is not None:
                 img = PIL.Image.fromarray(prob.maze.to_image())
