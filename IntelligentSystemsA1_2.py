@@ -3,6 +3,7 @@ from heap import Heap
 from vector import SortedVector
 from binarysearch import bisection
 import os
+import math
 import numpy as np
 import random
 import json as js
@@ -229,6 +230,36 @@ class WMaze:
                 self.matrix[row][col].neighbors[side] = True
                 row, col = adj
                 self.matrix[row][col].neighbors[op_side] = True
+
+    @staticmethod
+    def from_json(json):
+        """
+        Load WMaze from json string
+
+        Preserves global static attributes
+        """
+        json = eval(json.replace('f', 'F').replace('t', 'T'))
+
+        # save MAX_N current value
+        maxn = WCell.MAX_N
+        WCell.MAX_N = json['max_n']
+
+        m = WMaze(0, 0)
+        m.rows = json['rows']
+        m.cols = json['cols']
+        m.MOV = json['mov']
+        m.ID_MOV = json['id_mov']
+        m.__reset()
+        cells = json['cells']
+        for key in cells:
+            k = eval(key)
+            m.matrix[k[0]][k[1]].value = cells[key]['value']
+            m.matrix[k[0]][k[1]].neighbors = cells[key]['neighbors']
+
+        # restore MAX_N value
+        WCell.MAX_N = maxn
+
+        return m
 
     def from_json_file(self, data):
         """
